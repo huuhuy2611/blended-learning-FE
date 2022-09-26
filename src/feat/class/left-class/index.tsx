@@ -3,21 +3,26 @@ import { Box, List, ListItem, Card, Divider } from "@mui/material";
 
 interface IProps {
   data: { [key: string]: any }[];
+  onClick: (id: number) => void;
 }
 
 const LeftClass = (props: IProps) => {
-  const { data } = props;
+  const { data, onClick } = props;
 
   return (
-    <Card>
-      <List>
-        {data.map((item, index) => (
-          <Box>
-            <ListItem key={index}>{item.title}</ListItem>
-            <Divider />
-          </Box>
-        ))}
-      </List>
+    <Card sx={{ height: "100%" }}>
+      <Box sx={{ height: "100%", overflow: "auto" }}>
+        <List>
+          {data.map((item, index) => (
+            <Box>
+              <ListItem key={index} onClick={() => onClick(item.id)}>
+                {item.title}
+              </ListItem>
+              <Divider />
+            </Box>
+          ))}
+        </List>
+      </Box>
     </Card>
   );
 };
