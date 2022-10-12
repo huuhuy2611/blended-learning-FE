@@ -5,6 +5,10 @@ import Head from "next/head";
 import type { ReactElement, ReactNode } from "react";
 import GlobalStyles from "@/global-styles";
 import { UnsavedChangeProvider } from "@/common/hooks/use-unsaved-change";
+import { CollapseDrawerProvider } from "@/minimals.cc/contexts/CollapseDrawerContext";
+import MotionLazyContainer from "@/minimals.cc/components/animate/MotionLazyContainer";
+import MinimalsThemeProvider from "@/minimals.cc/theme";
+import ProgressBar from "@/minimals.cc/components/ProgressBar";
 
 export type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -26,6 +30,17 @@ const queryClient = new QueryClient({
   },
 });
 
+const MinimalsProviders = ({ children }: { children: ReactNode }) => (
+  <CollapseDrawerProvider>
+    <MotionLazyContainer>
+      <MinimalsThemeProvider>
+        <ProgressBar />
+        {children}
+      </MinimalsThemeProvider>
+    </MotionLazyContainer>
+  </CollapseDrawerProvider>
+);
+
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
@@ -35,10 +50,12 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
       <QueryClientProvider client={queryClient}>
-        <UnsavedChangeProvider>
-          <GlobalStyles />
-          {getLayout(<Component {...pageProps} />)}
-        </UnsavedChangeProvider>
+        <MinimalsProviders>
+          <UnsavedChangeProvider>
+            <GlobalStyles />
+            {getLayout(<Component {...pageProps} />)}
+          </UnsavedChangeProvider>
+        </MinimalsProviders>
       </QueryClientProvider>
     </>
   );

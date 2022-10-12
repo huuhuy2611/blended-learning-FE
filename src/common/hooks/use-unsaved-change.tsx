@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import Router from "next/router";
 import React from "react";
-import { SecondaryButton } from "../components/buttons";
+import { SecondaryButton } from "../components/button";
 import useCallbackRef from "./use-callback-ref";
 
 export default function useUnsavedChange(hasUnsavedChange: boolean) {
