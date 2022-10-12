@@ -48,7 +48,7 @@ const PostDetails = (props: IProps) => {
       <Typography variant="h5" sx={{ mb: 2 }}>
         {data.comments.length} Answers
       </Typography>
-      {data.comments.map((item) => (
+      {/* {data.comments.map((item) => (
         <Box>
           <Typography variant="subtitle1">{item.content}</Typography>
           <LikeDislike
@@ -58,7 +58,7 @@ const PostDetails = (props: IProps) => {
             numDisliked={34}
           />
         </Box>
-      ))}
+      ))} */}
     </Box>
   );
 };
