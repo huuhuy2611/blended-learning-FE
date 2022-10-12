@@ -1,0 +1,1 @@
+self.__REACT_LOADABLE_MANIFEST={"..\\src\\minimals.cc\\components\\animate\\MotionLazyContainer.tsx -> ./features.js":{"id":"..\\src\\minimals.cc\\components\\animate\\MotionLazyContainer.tsx -> ./features.js","files":["static/chunks/src_minimals_cc_components_animate_features_js.js"]}}
