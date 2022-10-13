@@ -1,6 +1,13 @@
-import Head from "next/head";
-import Image from "next/image";
+import AuthGuard from "@/common/layouts/AuthGuard";
+import LeftSideBar from "@/common/layouts/left-side-bar";
+import { ReactElement } from "react";
 
-export default function Home() {
+export default function HomePage() {
   return <div>[Home]</div>;
 }
+
+HomePage.getLayout = (page: ReactElement) => (
+  <AuthGuard>
+    <LeftSideBar>{page}</LeftSideBar>
+  </AuthGuard>
+);

@@ -6,25 +6,28 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import BasicTabs, { TabItem } from "@/common/components/tabs";
 import { PrimaryButton } from "@/common/components/button";
-import EmailTwoToneIcon from "@mui/icons-material/EmailTwoTone";
-import { useQuery } from "@tanstack/react-query";
-import { useLogin, useVerify } from "@/common/hooks/use-login";
+import { useLogin, useVerifyToken } from "@/common/hooks/use-login";
 import useLocalStorage from "@/common/hooks/use-local-storage";
-import router from "next/router";
+import { useRouter } from "next/router";
 
 const LoginForm = () => {
   const theme = useTheme();
+  const router = useRouter();
+  const nextPath = router.query.continue as string;
 
   const [token, setToken] = useLocalStorage("token", "");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const { mutateAsync: handleLogin } = useLogin({
     config: {
       onSuccess: (data) => {
+        setIsLoggedIn(true);
         setToken(data.token.accessToken);
+
+        router.push(nextPath);
       },
     },
   });
@@ -33,7 +36,7 @@ const LoginForm = () => {
   const [password, setPassword] = useState("");
 
   const handleSession = async (token: string) => {
-    const verify = await useVerify(token);
+    const verify = await useVerifyToken(token);
 
     if (verify) {
       router.push("/");
@@ -41,7 +44,7 @@ const LoginForm = () => {
   };
 
   useEffect(() => {
-    if (!token) return;
+    if (!token || isLoggedIn) return;
 
     handleSession(token);
   }, [token]);
