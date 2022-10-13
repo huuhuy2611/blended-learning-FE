@@ -1,0 +1,40 @@
+.LeftSideBar-logo {
+  text-align: center;
+  height: 40px;
+}
+
+.LeftSideBar-item-text {
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.LeftSideBar-main-title {
+  padding: 2px 0;
+  height: 64px;
+
+  h2 {
+    font-style: normal;
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 36px;
+    color: #212b36;
+  }
+}
+
+.LeftSidebarItemLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.LeftSidebarItemBtn {
+  position: relative;
+  text-decoration: none;
+  border-radius: 8px;
+  width: 100%;
+}
+
+.LeftSidebarItemIcon {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}

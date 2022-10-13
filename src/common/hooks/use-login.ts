@@ -1,6 +1,7 @@
 import {
   LoginResponse,
   ParamsLogin,
+  SessionData,
   ZLoginResponse,
   ZParamsLogin,
 } from "@/feat/auth/type";
@@ -25,12 +26,12 @@ export function useLogin(args?: {
   return loginMutation;
 }
 
-export const useVerify = z
+export const useVerifyToken = z
   .function()
   .args(z.string())
   .implement(async (token) => {
-    await blendedApi.get("/auth/me", {
+    const { data } = await blendedApi.get("/auth/me", {
       headers: { Authorization: `Bearer ${token}` },
     });
-    return true;
+    return SessionData.parse(data);
   });

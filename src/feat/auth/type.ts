@@ -23,3 +23,11 @@ export type LoginResponse = z.infer<typeof ZLoginResponse>;
 
 export const ZVerifyResponse = ZLoginResponse.pick({ user: true });
 export type VerifyResponse = z.infer<typeof ZVerifyResponse>;
+
+export const SessionData = z.object({
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  email: z.string(),
+  role: z.enum(ROLE_TYPE),
+});
+export type SessionData = z.infer<typeof SessionData>;

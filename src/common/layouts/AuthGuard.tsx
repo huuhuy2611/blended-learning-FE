@@ -1,27 +1,37 @@
 import { redirect } from "@/common/lib/router";
-import {
-  useOnSessionError,
-  useOnSessionUpdate,
-  useSession,
-} from "@/feat/auth/context";
-import Router from "next/router";
-import { ReactNode } from "react";
+import { SessionData } from "@/feat/auth/type";
+import Router, { useRouter } from "next/router";
+import { ReactNode, useEffect, useState } from "react";
+import useLocalStorage from "../hooks/use-local-storage";
+import { useVerifyToken } from "../hooks/use-login";
 
 export default function AuthGuard({ children }: { children: ReactNode }) {
-  const { data: sessionData } = useSession();
+  const router = useRouter();
+  const [token] = useLocalStorage("token", "");
 
-  useOnSessionUpdate((data) => {
-    if (Router.pathname === "/login") return;
-    if (data.isUserLoggedIn) return;
-    Router.push({
-      pathname: "/login",
-      query: { continue: Router.asPath },
-    });
-  });
-  useOnSessionError(() => redirect("/login"));
+  const [data, setData] = useState<SessionData>();
 
-  if (sessionData?.isUserLoggedIn) {
-    return <>{children}</>;
-  }
-  return <pre>Loading...</pre>;
+  const handleVerifyToken = async (token: string) => {
+    const user = await useVerifyToken(token);
+
+    if (!user) {
+      redirect("/login");
+    }
+
+    setData(user);
+  };
+
+  useEffect(() => {
+    if (!token) {
+      Router.push({
+        pathname: "/login",
+        query: { continue: router.asPath },
+      });
+      return;
+    }
+
+    handleVerifyToken(token);
+  }, [token]);
+
+  return <>{data ? <>{children}</> : <pre>Loading...</pre>}</>;
 }
