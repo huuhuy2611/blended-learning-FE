@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Box, Grid, Paper, styled } from "@mui/material";
 import mockPost from "./mock_posts.json";
 import mockComment from "./mock_comments.json";
-import LeftClass from "./left-class";
+import LeftClassroom from "./left-classroom";
 import PostDetails from "./post-details";
 
 const Class = () => {
@@ -29,7 +29,7 @@ const Class = () => {
               height: "80vh",
             }}
           >
-            <LeftClass data={mockPost} onClick={handleShowPostDetails} />
+            <LeftClassroom data={mockPost} onClick={handleShowPostDetails} />
           </Box>
         </Grid>
         {postSelected && (
