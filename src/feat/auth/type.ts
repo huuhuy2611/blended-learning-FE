@@ -13,6 +13,7 @@ export const ZLoginResponse = z.object({
     updatedAt: z.string(),
     role: z.enum(ROLE_TYPE),
     email: z.string(),
+    id: z.string(),
   }),
   token: z.object({
     expiresIn: z.number(),
@@ -29,5 +30,6 @@ export const SessionData = z.object({
   updatedAt: z.string(),
   email: z.string(),
   role: z.enum(ROLE_TYPE),
+  id: z.string(),
 });
 export type SessionData = z.infer<typeof SessionData>;

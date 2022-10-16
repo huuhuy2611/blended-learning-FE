@@ -1,9 +1,14 @@
 import AuthGuard from "@/common/layouts/AuthGuard";
 import LeftSideBar from "@/common/layouts/left-side-bar";
+import Home from "@/feat/home";
 import { ReactElement } from "react";
 
 export default function HomePage() {
-  return <div>[Home]</div>;
+  return (
+    <div>
+      <Home />
+    </div>
+  );
 }
 
 HomePage.getLayout = (page: ReactElement) => (
