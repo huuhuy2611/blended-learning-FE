@@ -7,7 +7,7 @@ import {
 } from "@/feat/auth/type";
 import { useMutation, UseMutationOptions } from "@tanstack/react-query";
 import { z } from "zod";
-import { blendedApi } from "../utils/api.util";
+import { blendedApi } from "./use-api";
 
 export function useLogin(args?: {
   config?: UseMutationOptions<LoginResponse, Error, ParamsLogin, Array<any>>;

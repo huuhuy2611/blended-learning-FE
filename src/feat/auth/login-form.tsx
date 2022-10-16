@@ -19,6 +19,9 @@ const LoginForm = () => {
   const nextPath = router.query.continue as string;
 
   const [token, setToken] = useLocalStorage("token", "");
+  const [userId, setUserId] = useLocalStorage("userId", "");
+  const [userRole, setUserRole] = useLocalStorage("userRole", "");
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const { mutateAsync: handleLogin } = useLogin({
@@ -26,8 +29,10 @@ const LoginForm = () => {
       onSuccess: (data) => {
         setIsLoggedIn(true);
         setToken(data.token.accessToken);
+        setUserId(data.user.id);
+        setUserRole(data.user.role);
 
-        router.push(nextPath);
+        router.push(nextPath || "/");
       },
     },
   });
