@@ -1,20 +1,20 @@
 import React, { ReactElement } from "react";
-import Class from "@/feat/class";
+import Classroom from "@/feat/class";
 import { Box } from "@mui/material";
 import AuthGuard from "@/common/layouts/AuthGuard";
 import LeftSideBar from "@/common/layouts/left-side-bar";
 
-const ClassPage = () => {
+const ClassroomPage = () => {
   return (
     <Box>
-      <Class />
+      <Classroom />
     </Box>
   );
 };
 
-export default ClassPage;
+export default ClassroomPage;
 
-ClassPage.getLayout = (page: ReactElement) => (
+ClassroomPage.getLayout = (page: ReactElement) => (
   <AuthGuard>
     <LeftSideBar>{page}</LeftSideBar>
   </AuthGuard>

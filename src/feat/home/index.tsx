@@ -2,10 +2,8 @@ import { useClassroomsByUser } from "@/common/hooks/use-classrooms";
 import useLocalStorage from "@/common/hooks/use-local-storage";
 import {
   Box,
-  Button,
   Card,
   CardActionArea,
-  CardActions,
   CardContent,
   CardMedia,
   Grid,
@@ -36,7 +34,7 @@ const Home = () => {
           >
             <Card
               sx={{ cursor: "pointer", height: "100%" }}
-              onClick={() => router.push(`/class/${item.id}`)}
+              onClick={() => router.push(`/classroom/${item.id}`)}
             >
               <CardActionArea>
                 <CardMedia

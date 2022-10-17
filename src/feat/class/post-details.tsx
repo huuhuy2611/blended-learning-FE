@@ -2,13 +2,17 @@ import React from "react";
 import { Box, Divider, Typography } from "@mui/material";
 import dayjs from "dayjs";
 import LikeDislike from "@/common/components/like-dislike";
+import { PostItem } from "@/common/types/post.type";
 
 interface IProps {
-  data: { [key: string]: any };
+  data: PostItem;
 }
 
 const PostDetails = (props: IProps) => {
   const { data } = props;
+
+  const createdAt = dayjs(data.createdAt).format("DD/MM/YYYY");
+  const updatedAt = dayjs(data.updatedAt).format("DD/MM/YYYY");
 
   const mockDate = dayjs("01/01/2018", "DD/MM/YYYY");
   const liked = true;
@@ -19,15 +23,10 @@ const PostDetails = (props: IProps) => {
       <Box sx={{ mb: 1 }}>
         <Typography variant="h4">{data.title}</Typography>
         <Typography variant="caption" sx={{ mr: 2 }}>
-          Created{" "}
-          <strong>{dayjs(new Date()).diff(mockDate, "weeks")} weeks</strong>
+          Created <strong>{createdAt}</strong>
         </Typography>
         <Typography variant="caption" sx={{ mr: 2 }}>
-          Modified{" "}
-          <strong>{dayjs(new Date()).diff(mockDate, "weeks")} weeks</strong>
-        </Typography>
-        <Typography variant="caption" sx={{ mr: 2 }}>
-          Viewed <strong>123</strong>
+          Modified <strong>{updatedAt}</strong>
         </Typography>
       </Box>
 
@@ -39,14 +38,14 @@ const PostDetails = (props: IProps) => {
         <LikeDislike
           isLiked={liked}
           isDisliked={disliked}
-          numLiked={12}
-          numDisliked={34}
+          numLiked={data.numUpVote}
+          numDisliked={data.numDownVote}
         />
       </Box>
       <Divider sx={{ mb: 2 }} />
 
       <Typography variant="h5" sx={{ mb: 2 }}>
-        {data.comments.length} Answers
+        {/* {data.comments.length} Answers */}
       </Typography>
       {/* {data.comments.map((item) => (
         <Box>

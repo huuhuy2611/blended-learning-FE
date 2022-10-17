@@ -24,11 +24,11 @@ export function useClassroomsByUser(args?: {
     []
   );
 
-  const getReservationDetailQuery = useQuery(
+  const getClassroomsByUserQuery = useQuery(
     ["get-classrooms-by-user-query", args?.userId],
     () => fetchClassrooms(args?.userId || ""),
     args?.config
   );
 
-  return getReservationDetailQuery;
+  return getClassroomsByUserQuery;
 }

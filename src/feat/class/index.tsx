@@ -1,23 +1,42 @@
 import React, { useEffect, useState } from "react";
-import { Box, Grid, Paper, styled } from "@mui/material";
-import mockPost from "./mock_posts.json";
+import { Box, Card, Grid, Paper, styled } from "@mui/material";
 import mockComment from "./mock_comments.json";
-import LeftClass from "./left-class";
+import LeftClassroom from "./left-classroom";
 import PostDetails from "./post-details";
+import { useRouter } from "next/router";
+import { usePortsByClassroom } from "@/common/hooks/use-post";
+import { PostItem } from "@/common/types/post.type";
+import useDebounce, {
+  SEARCH_DEBOUNCE_TIMEOUT,
+} from "@/common/hooks/use-debounce";
 
 const Class = () => {
-  const [postSelected, setPostSelected] = useState<{
-    [key: string]: any;
-  } | null>(null);
+  const router = useRouter();
+  const classroomId = router.query.id as string;
 
-  const handleShowPostDetails = (id: number) => {
-    const tempPostSelected = mockPost.find((item) => item.id === id);
-    const listComment = mockComment.filter((item) => item.postId === id);
-    setPostSelected({ ...tempPostSelected, comments: listComment } || null);
+  if (!classroomId) {
+    return <pre>Loading...</pre>;
+  }
+
+  const [keySearch, setKeySearch] = useState("");
+  const debounceKeySearch = useDebounce(keySearch, SEARCH_DEBOUNCE_TIMEOUT);
+
+  const { data: dataPosts } = usePortsByClassroom({
+    classroomId: classroomId,
+    keySearch: debounceKeySearch,
+  });
+
+  const [postSelected, setPostSelected] = useState<PostItem | null>(
+    dataPosts?.[0] || null
+  );
+
+  const handleShowPostDetails = (id: string) => {
+    const tempPostSelected = dataPosts.find((item: PostItem) => item.id === id);
+    setPostSelected(tempPostSelected);
   };
 
   return (
-    <Box sx={{ m: 4, height: "100%" }}>
+    <Card sx={{ height: "100%", p: 3 }}>
       <Grid container spacing={1} sx={{ height: "100%" }}>
         <Grid item xs={12} sx={{ height: "10%" }}>
           <Box sx={{ width: "100%", background: "orange" }}>[Header]</Box>
@@ -29,7 +48,14 @@ const Class = () => {
               height: "80vh",
             }}
           >
-            <LeftClass data={mockPost} onClick={handleShowPostDetails} />
+            {dataPosts && (
+              <LeftClassroom
+                keySearch={keySearch}
+                onSearch={(value) => setKeySearch(value)}
+                data={dataPosts}
+                onClick={handleShowPostDetails}
+              />
+            )}
           </Box>
         </Grid>
         {postSelected && (
@@ -40,7 +66,7 @@ const Class = () => {
           </Grid>
         )}
       </Grid>
-    </Box>
+    </Card>
   );
 };
 
