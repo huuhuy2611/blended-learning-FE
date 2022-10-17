@@ -149,8 +149,8 @@ export default function LeftSideBar({
             <Image
               src="/images/logo_item.jpg"
               alt="Logo"
-              width={90}
-              height={90}
+              width={60}
+              height={60}
             />
           </div>
           <LeftSidebarNavigation />
