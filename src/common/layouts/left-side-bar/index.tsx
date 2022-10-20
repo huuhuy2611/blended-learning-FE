@@ -145,14 +145,14 @@ export default function LeftSideBar({
           direction="column"
           divider={<Divider orientation="horizontal" flexItem />}
         >
-          <div className={styles["LeftSideBar-logo"]}>
+          <NextLink href="/" className={styles["LeftSideBar-logo"]}>
             <Image
               src="/images/logo_item.jpg"
               alt="Logo"
               width={60}
               height={60}
             />
-          </div>
+          </NextLink>
           <LeftSidebarNavigation />
         </Stack>
         <Divider orientation="vertical" />

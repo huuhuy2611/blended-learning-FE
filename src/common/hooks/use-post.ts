@@ -1,7 +1,17 @@
-import { useQuery, UseQueryOptions } from "@tanstack/react-query";
+import {
+  useMutation,
+  UseMutationOptions,
+  useQuery,
+  UseQueryOptions,
+} from "@tanstack/react-query";
 import { useMemo } from "react";
 import { z } from "zod";
-import { PostItem, ZPostItem } from "../types/post.type";
+import {
+  AddPostPayload,
+  PostItem,
+  ZAddPostPayload,
+  ZPostItem,
+} from "../types/post.type";
 import useApiAuth from "./use-api";
 
 export function usePortsByClassroom(args?: {
@@ -33,4 +43,24 @@ export function usePortsByClassroom(args?: {
   );
 
   return getPostsByClassroomQuery;
+}
+
+export function useAddPost(args?: {
+  config?: UseMutationOptions<PostItem, Error, AddPostPayload, Array<any>>;
+}) {
+  const apiAuth = useApiAuth();
+
+  const addPostMutation = useMutation(
+    z
+      .function()
+      .args(ZAddPostPayload)
+      .implement(async (payload: AddPostPayload) => {
+        const { data } = await apiAuth.post("/posts", payload);
+
+        return ZPostItem.parse(data);
+      }),
+    args?.config
+  );
+
+  return addPostMutation;
 }
