@@ -1,8 +1,8 @@
-import React from "react";
 import { Box, Divider, Typography } from "@mui/material";
 import dayjs from "dayjs";
 import LikeDislike from "@/common/components/like-dislike";
 import { PostItem } from "@/common/types/post.type";
+import ReactHtmlParser from "react-html-parser";
 
 interface IProps {
   data: PostItem;
@@ -33,13 +33,13 @@ const PostDetails = (props: IProps) => {
       <Divider sx={{ mb: 2 }} />
       <Box sx={{ mb: 1 }}>
         <Typography variant="body1" sx={{ mb: 1 }}>
-          {data.content}
+          {ReactHtmlParser(data.content)}
         </Typography>
         <LikeDislike
           isLiked={liked}
           isDisliked={disliked}
-          numLiked={data.numUpVote}
-          numDisliked={data.numDownVote}
+          numLiked={data.numUpVote || 0}
+          numDisliked={data.numDownVote || 0}
         />
       </Box>
       <Divider sx={{ mb: 2 }} />
