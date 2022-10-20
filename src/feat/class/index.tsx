@@ -60,11 +60,7 @@ const Classroom = () => {
               />
             </Box>
           </Grid>
-          {/* <Grid item xs={8} sx={{ height: "80%" }}>
-          <Box sx={{ width: "100%" }}>
-            <ArticleEditor />
-          </Box>
-        </Grid> */}
+
           {postSelected && (
             <Grid item xs={8} sx={{ height: "80%" }}>
               <Box sx={{ width: "100%" }}>

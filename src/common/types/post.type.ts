@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ZUserItem } from "./user.type";
 
 export const ZPostItem = z.object({
   createdAt: z.string(),
@@ -8,6 +9,7 @@ export const ZPostItem = z.object({
   content: z.string(),
   numUpVote: z.number().optional(),
   numDownVote: z.number().optional(),
+  user: ZUserItem,
 });
 export type PostItem = z.infer<typeof ZPostItem>;
 

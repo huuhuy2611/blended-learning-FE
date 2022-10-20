@@ -153,7 +153,7 @@ export default function LeftSideBar({
               height={60}
             />
           </NextLink>
-          <LeftSidebarNavigation />
+          {/* <LeftSidebarNavigation /> */}
         </Stack>
         <Divider orientation="vertical" />
         <div

@@ -1,8 +1,9 @@
-import { Box, Divider, Typography } from "@mui/material";
+import { Box, Button, Divider, Typography } from "@mui/material";
 import dayjs from "dayjs";
 import LikeDislike from "@/common/components/like-dislike";
 import { PostItem } from "@/common/types/post.type";
 import ReactHtmlParser from "react-html-parser";
+import useLocalStorage from "@/common/hooks/use-local-storage";
 
 interface IProps {
   data: PostItem;
@@ -11,10 +12,11 @@ interface IProps {
 const PostDetails = (props: IProps) => {
   const { data } = props;
 
+  const [userId] = useLocalStorage("userId", "");
+
   const createdAt = dayjs(data.createdAt).format("DD/MM/YYYY");
   const updatedAt = dayjs(data.updatedAt).format("DD/MM/YYYY");
 
-  const mockDate = dayjs("01/01/2018", "DD/MM/YYYY");
   const liked = true;
   const disliked = false;
 
@@ -22,12 +24,26 @@ const PostDetails = (props: IProps) => {
     <Box sx={{ p: 2 }}>
       <Box sx={{ mb: 1 }}>
         <Typography variant="h4">{data.title}</Typography>
-        <Typography variant="caption" sx={{ mr: 2 }}>
-          Created <strong>{createdAt}</strong>
-        </Typography>
-        <Typography variant="caption" sx={{ mr: 2 }}>
-          Modified <strong>{updatedAt}</strong>
-        </Typography>
+        <Box className="div-center" sx={{ justifyContent: "space-between" }}>
+          <Box>
+            <Typography variant="caption" sx={{ mr: 2 }}>
+              Created <strong>{createdAt}</strong>
+            </Typography>
+            <Typography variant="caption" sx={{ mr: 2 }}>
+              Modified <strong>{updatedAt}</strong>
+            </Typography>
+          </Box>
+          {userId === data.user.id && (
+            <Button
+              variant="text"
+              sx={{
+                textDecoration: "underline",
+              }}
+            >
+              Edit
+            </Button>
+          )}
+        </Box>
       </Box>
 
       <Divider sx={{ mb: 2 }} />

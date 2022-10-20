@@ -28,7 +28,13 @@ const ModalAddPost = (props: IProps) => {
   const classroomId = router.query.id as string;
   const { handleClose } = props;
 
-  const { mutateAsync: handleAddPost } = useAddPost();
+  const { mutateAsync: handleAddPost } = useAddPost({
+    config: {
+      onSuccess: () => {
+        handleClose();
+      },
+    }
+  });
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
