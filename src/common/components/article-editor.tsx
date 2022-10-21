@@ -33,7 +33,7 @@ const ArticleEditor = (props: IProps) => {
       initState = EditorState.createWithContent(contentState);
     }
     return initState;
-  }, []);
+  }, [value]);
 
   const [editorState, setEditorState] = useState(defaultEditorState);
 

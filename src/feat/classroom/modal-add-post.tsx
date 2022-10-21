@@ -4,45 +4,56 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
-  FormControl,
-  FormHelperText,
   IconButton,
-  InputLabel,
   TextField,
   Typography,
 } from "@mui/material";
 import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import ArticleEditor from "@/common/components/article-editor";
-import { useAddPost } from "@/common/hooks/use-post";
 import { useRouter } from "next/router";
+import { PostItem } from "@/common/types/post.type";
+
+export interface ISubmitPost {
+  title: string;
+  content: string;
+  classroomId: string;
+}
 
 interface IProps {
-  handleClose: () => void;
+  data?: PostItem;
+  onClose: () => void;
+  onSubmit: (dataSubmit: ISubmitPost) => void;
 }
 
 const ModalAddPost = (props: IProps) => {
   const router = useRouter();
   const classroomId = router.query.id as string;
-  const { handleClose } = props;
-
-  const { mutateAsync: handleAddPost } = useAddPost({
-    config: {
-      onSuccess: () => {
-        handleClose();
-      },
-    }
-  });
+  const { data, onClose, onSubmit } = props;
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!data) {
+      setIsLoading(false);
+      return;
+    }
+
+    setTitle(data.title);
+    setContent(data.content);
+    setIsLoading(false);
+  }, [data]);
+
+  if (isLoading) return null;
+
   return (
     <Dialog
       open
-      onClose={handleClose}
+      onClose={onClose}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
       sx={{
@@ -54,7 +65,7 @@ const ModalAddPost = (props: IProps) => {
       <DialogTitle id="alert-dialog-title">
         <Box className="div-center" sx={{ justifyContent: "space-between" }}>
           <Typography variant="h4">Add new post</Typography>
-          <IconButton onClick={handleClose}>
+          <IconButton onClick={onClose}>
             <CloseTwoToneIcon />
           </IconButton>
         </Box>
@@ -83,15 +94,15 @@ const ModalAddPost = (props: IProps) => {
         </Box>
       </DialogContent>
       <DialogActions>
-        <SecondaryButton onClick={handleClose}>Cancel</SecondaryButton>
+        <SecondaryButton onClick={onClose}>Cancel</SecondaryButton>
         <PrimaryButton
           onClick={(e) => {
             e.preventDefault();
-            handleAddPost({ title, content, classroomId });
+            onSubmit({ title, content, classroomId });
           }}
           autoFocus
         >
-          Save
+          {data ? "Save change" : "Create"}
         </PrimaryButton>
       </DialogActions>
     </Dialog>

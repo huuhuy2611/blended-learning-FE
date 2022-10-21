@@ -13,9 +13,19 @@ export const ZPostItem = z.object({
 });
 export type PostItem = z.infer<typeof ZPostItem>;
 
+export const ZPostItemWithoutUser = ZPostItem.omit({
+  user: true,
+});
+export type PostItemWithoutUser = z.infer<typeof ZPostItemWithoutUser>;
+
 export const ZAddPostPayload = z.object({
   title: z.string(),
   content: z.string(),
   classroomId: z.string(),
 });
 export type AddPostPayload = z.infer<typeof ZAddPostPayload>;
+
+export const ZUpdatePostPayload = ZAddPostPayload.extend({
+  postId: z.string(),
+});
+export type UpdatePostPayload = z.infer<typeof ZUpdatePostPayload>;

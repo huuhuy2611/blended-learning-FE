@@ -23,6 +23,7 @@ import useIsAnimating from "@/common/hooks/use-is-animating";
 import clsx from "clsx";
 import Image from "next/image";
 import { useIsoLayoutEffect } from "@/common/utils";
+import { PrimaryButton } from "@/common/components/button";
 
 export type LeftSideBarCtx = {
   setMainBarEl: React.Dispatch<React.SetStateAction<React.ReactNode>>;
@@ -106,6 +107,8 @@ export default function LeftSideBar({
   drawerClassName?: string;
   mainClassName?: string;
 }) {
+  const router = useRouter();
+
   const miniBarWidth = 94;
   const [mainBarWidth, setMainBarWidth] = React.useState(0);
   const [mainBarEl, setMainBarEl] = React.useState<React.ReactNode>(null);
@@ -154,6 +157,14 @@ export default function LeftSideBar({
             />
           </NextLink>
           {/* <LeftSidebarNavigation /> */}
+          <PrimaryButton
+            onClick={() => {
+              localStorage.clear();
+              router.push("/login");
+            }}
+          >
+            Sign out
+          </PrimaryButton>
         </Stack>
         <Divider orientation="vertical" />
         <div

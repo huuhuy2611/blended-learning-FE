@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Box,
   List,
@@ -14,26 +14,47 @@ import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
 import AddTwoToneIcon from "@mui/icons-material/AddTwoTone";
 import { PrimaryButton } from "@/common/components/button";
 import { PostItem } from "@/common/types/post.type";
-import ModalAddPost from "../modal-add-post";
+import ModalAddPost, { ISubmitPost } from "../modal-add-post";
+import { useAddPost } from "@/common/hooks/use-post";
 
 interface IProps {
   data: PostItem[] | undefined;
+  selectedPostIndex: number;
   keySearch: string;
   onSearch: (value: string) => void;
   onClick: (id: string) => void;
+  addPostSuccess?: () => void;
 }
 
 const LeftClass = (props: IProps) => {
   const theme = useTheme();
-  const { data, onClick, keySearch, onSearch } = props;
+  const {
+    data,
+    onClick,
+    keySearch,
+    onSearch,
+    addPostSuccess,
+    selectedPostIndex,
+  } = props;
 
-  const [selectedIndex, setSelectedIndex] = useState(0);
   const [showModalAddPost, setShowModalAddPost] = useState(false);
+
+  const { mutateAsync: handleAddPost } = useAddPost({
+    config: {
+      onSuccess: () => {
+        setShowModalAddPost(false);
+        addPostSuccess?.();
+      },
+    },
+  });
 
   return (
     <>
       {showModalAddPost && (
-        <ModalAddPost handleClose={() => setShowModalAddPost(false)} />
+        <ModalAddPost
+          onClose={() => setShowModalAddPost(false)}
+          onSubmit={(dataSubmit: ISubmitPost) => handleAddPost(dataSubmit)}
+        />
       )}
       <Card
         sx={{
@@ -73,11 +94,10 @@ const LeftClass = (props: IProps) => {
                       cursor: "pointer",
                       "&:hover": { background: "#8080800d" },
                     }}
-                    selected={selectedIndex === index}
+                    selected={selectedPostIndex === index}
                     key={index}
                     onClick={() => {
                       onClick(item.id);
-                      setSelectedIndex(index);
                     }}
                   >
                     {item.title}
