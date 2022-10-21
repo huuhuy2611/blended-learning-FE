@@ -6,7 +6,8 @@ import ReactHtmlParser from "react-html-parser";
 import useLocalStorage from "@/common/hooks/use-local-storage";
 import ModalAddPost, { ISubmitPost } from "./modal-add-post";
 import { useState } from "react";
-import { useUpdatePost } from "@/common/hooks/use-post";
+import { useDeletePost, useUpdatePost } from "@/common/hooks/use-post";
+import ModalConfirmation from "./modal-confirmation";
 
 interface IProps {
   data: PostItem;
@@ -21,11 +22,21 @@ const PostDetails = (props: IProps) => {
   const updatedAt = dayjs(data.updatedAt).format("DD/MM/YYYY");
 
   const [showEditPost, setShowEditPost] = useState(false);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
   const liked = true;
   const disliked = false;
 
   const { mutateAsync: handleUpdatePost } = useUpdatePost({
+    config: {
+      onSuccess: () => {
+        setShowEditPost(false);
+        onUpdatePostSuccess?.();
+      },
+    },
+  });
+
+  const { mutateAsync: handleDeletePost } = useDeletePost({
     config: {
       onSuccess: () => {
         setShowEditPost(false);
@@ -45,6 +56,12 @@ const PostDetails = (props: IProps) => {
           }}
         />
       )}
+      {showConfirmDelete && (
+        <ModalConfirmation
+          onClose={() => setShowConfirmDelete(false)}
+          onDelete={() => handleDeletePost(data.id)}
+        />
+      )}
       <Box sx={{ p: 2 }}>
         <Box sx={{ mb: 1 }}>
           <Typography variant="h4">{data.title}</Typography>
@@ -58,15 +75,29 @@ const PostDetails = (props: IProps) => {
               </Typography>
             </Box>
             {userId === data.user.id && (
-              <Button
-                variant="text"
-                sx={{
-                  textDecoration: "underline",
-                }}
-                onClick={() => setShowEditPost(true)}
-              >
-                Edit
-              </Button>
+              <Box>
+                <Button
+                  variant="text"
+                  sx={{
+                    textDecoration: "underline",
+                    minWidth: "50px",
+                  }}
+                  onClick={() => setShowEditPost(true)}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="text"
+                  color="error"
+                  sx={{
+                    textDecoration: "underline",
+                    minWidth: "50px",
+                  }}
+                  onClick={() => setShowConfirmDelete(true)}
+                >
+                  Delete
+                </Button>
+              </Box>
             )}
           </Box>
         </Box>
