@@ -94,3 +94,23 @@ export function useUpdatePost(args?: {
 
   return updatePostMutation;
 }
+
+export function useDeletePost(args?: {
+  config?: UseMutationOptions<boolean, Error, string, unknown>;
+}) {
+  const apiAuth = useApiAuth();
+
+  const deletePostMutation = useMutation(
+    z
+      .function()
+      .args(z.string())
+      .implement(async (postId: string) => {
+        await apiAuth.delete(`/posts/${postId}`);
+
+        return true;
+      }),
+    args?.config
+  );
+
+  return deletePostMutation;
+}

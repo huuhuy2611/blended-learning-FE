@@ -84,7 +84,7 @@ const LeftClass = (props: IProps) => {
             }}
           />
         </Box>
-        <Box sx={{ height: "84%", overflow: "auto" }}>
+        <Box sx={{ height: "80%", overflow: "auto" }}>
           {data ? (
             <List>
               {data.map((item, index) => (
