@@ -1,5 +1,5 @@
 import React, { ReactElement } from "react";
-import Classroom from "@/feat/class";
+import Classroom from "@/feat/classroom";
 import { Box } from "@mui/material";
 import AuthGuard from "@/common/layouts/AuthGuard";
 import LeftSideBar from "@/common/layouts/left-side-bar";

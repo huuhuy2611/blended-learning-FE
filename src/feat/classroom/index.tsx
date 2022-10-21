@@ -20,22 +20,33 @@ const Classroom = () => {
   const [keySearch, setKeySearch] = useState("");
   const debounceKeySearch = useDebounce(keySearch, SEARCH_DEBOUNCE_TIMEOUT);
 
-  const { data: dataPosts } = usePortsByClassroom({
+  const { data: dataPosts, refetch } = usePortsByClassroom({
     classroomId: classroomId,
     keySearch: debounceKeySearch,
   });
 
   const [postSelected, setPostSelected] = useState<PostItem | null>(null);
+  const [selectedPostIndex, setSelectedPostIndex] = useState(0);
 
   const handleShowPostDetails = (id: string) => {
     const tempPostSelected = dataPosts.find((item: PostItem) => item.id === id);
+    const indexPost = dataPosts.findIndex((item: PostItem) => item.id === id);
+    setSelectedPostIndex(indexPost);
     setPostSelected(tempPostSelected);
   };
 
   useEffect(() => {
     if (!dataPosts) return;
 
-    setPostSelected(dataPosts[0]);
+    const indexPost = dataPosts.findIndex(
+      (item: PostItem) => item.id === postSelected?.id
+    );
+
+    if (indexPost >= 0) {
+      setSelectedPostIndex(indexPost);
+    }
+
+    setPostSelected(dataPosts[indexPost || selectedPostIndex]);
   }, [dataPosts]);
 
   return (
@@ -53,22 +64,23 @@ const Classroom = () => {
               }}
             >
               <LeftClassroom
+                selectedPostIndex={selectedPostIndex}
                 keySearch={keySearch}
                 onSearch={(value) => setKeySearch(value)}
                 data={dataPosts}
                 onClick={handleShowPostDetails}
+                addPostSuccess={() => refetch()}
               />
             </Box>
           </Grid>
-          {/* <Grid item xs={8} sx={{ height: "80%" }}>
-          <Box sx={{ width: "100%" }}>
-            <ArticleEditor />
-          </Box>
-        </Grid> */}
+
           {postSelected && (
             <Grid item xs={8} sx={{ height: "80%" }}>
               <Box sx={{ width: "100%" }}>
-                <PostDetails data={postSelected || {}} />
+                <PostDetails
+                  data={postSelected || {}}
+                  onUpdatePostSuccess={() => refetch()}
+                />
               </Box>
             </Grid>
           )}

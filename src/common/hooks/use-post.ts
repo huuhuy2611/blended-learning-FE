@@ -9,8 +9,12 @@ import { z } from "zod";
 import {
   AddPostPayload,
   PostItem,
+  PostItemWithoutUser,
+  UpdatePostPayload,
   ZAddPostPayload,
   ZPostItem,
+  ZPostItemWithoutUser,
+  ZUpdatePostPayload,
 } from "../types/post.type";
 import useApiAuth from "./use-api";
 
@@ -63,4 +67,30 @@ export function useAddPost(args?: {
   );
 
   return addPostMutation;
+}
+
+export function useUpdatePost(args?: {
+  config?: UseMutationOptions<
+    PostItemWithoutUser,
+    Error,
+    UpdatePostPayload,
+    Array<any>
+  >;
+}) {
+  const apiAuth = useApiAuth();
+
+  const updatePostMutation = useMutation(
+    z
+      .function()
+      .args(ZUpdatePostPayload)
+      .implement(async (payload: UpdatePostPayload) => {
+        const { postId, ...rest } = payload;
+        const { data } = await apiAuth.put(`/posts/${postId}`, rest);
+
+        return ZPostItemWithoutUser.parse(data);
+      }),
+    args?.config
+  );
+
+  return updatePostMutation;
 }
