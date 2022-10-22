@@ -1,4 +1,3 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { NextPage } from "next";
 import type { AppProps } from "next/app";
 import Head from "next/head";
@@ -9,6 +8,7 @@ import { CollapseDrawerProvider } from "@/minimals.cc/contexts/CollapseDrawerCon
 import MotionLazyContainer from "@/minimals.cc/components/animate/MotionLazyContainer";
 import MinimalsThemeProvider from "@/minimals.cc/theme";
 import ProgressBar from "@/minimals.cc/components/ProgressBar";
+import { QClientProvider } from "@/common/lib/react-query";
 
 export type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -17,18 +17,6 @@ export type NextPageWithLayout = NextPage & {
 type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
 };
-const queryClient = new QueryClient({
-  defaultOptions: {
-    mutations: {
-      onError: (err) => console.error(err),
-    },
-    queries: {
-      onError: (err) => console.error(err),
-      // refetchOnWindowFocus: false,
-      retry: 2,
-    },
-  },
-});
 
 const MinimalsProviders = ({ children }: { children: ReactNode }) => (
   <CollapseDrawerProvider>
@@ -49,14 +37,14 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       <Head>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
-      <QueryClientProvider client={queryClient}>
+      <QClientProvider>
         <MinimalsProviders>
           <UnsavedChangeProvider>
             <GlobalStyles />
             {getLayout(<Component {...pageProps} />)}
           </UnsavedChangeProvider>
         </MinimalsProviders>
-      </QueryClientProvider>
+      </QClientProvider>
     </>
   );
 }

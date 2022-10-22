@@ -46,7 +46,7 @@ const Classroom = () => {
       setSelectedPostIndex(indexPost);
     }
 
-    setPostSelected(dataPosts[indexPost || selectedPostIndex]);
+    setPostSelected(dataPosts[indexPost >= 0 ? indexPost : selectedPostIndex]);
   }, [dataPosts]);
 
   return (
@@ -60,7 +60,7 @@ const Classroom = () => {
             <Box
               sx={{
                 width: "100%",
-                height: "80vh",
+                height: "86vh",
               }}
             >
               <LeftClassroom

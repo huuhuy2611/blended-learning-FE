@@ -15,23 +15,23 @@ const LikeDislike = (props: IProps) => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Box sx={{ mr: 2 }} className="div-center">
-        <Typography variant="caption" sx={{ mt: 1, mr: 0.4 }}>
-          {numLiked}
-        </Typography>
+      <Box sx={{ mr: 1 }} className="div-center">
         <ThumbUpTwoToneIcon
           color={isLiked ? "primary" : "action"}
-          sx={{ cursor: "pointer" }}
+          sx={{ cursor: "pointer", mr: 0.5 }}
         />
+        <Typography variant="body1" sx={{}}>
+          {numLiked}
+        </Typography>
       </Box>
       <Box className="div-center">
-        <Typography variant="caption" sx={{ mt: 1, mr: 0.4 }}>
-          {numDisliked}
-        </Typography>
         <ThumbDownOffAltTwoToneIcon
           color={isDisliked ? "primary" : "action"}
-          sx={{ cursor: "pointer" }}
+          sx={{ cursor: "pointer", mr: 0.5 }}
         />
+        <Typography variant="body1" sx={{}}>
+          {numDisliked}
+        </Typography>
       </Box>
     </Box>
   );
