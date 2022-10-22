@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Box, Card, Grid } from "@mui/material";
 import LeftClassroom from "./left-classroom";
-import PostDetails from "./post-details";
+import PostDetails from "./right-classroom/post-details";
 import { useRouter } from "next/router";
 import { usePortsByClassroom } from "@/common/hooks/use-post";
 import { PostItem } from "@/common/types/post.type";

@@ -4,7 +4,7 @@ import LikeDislike from "@/common/components/like-dislike";
 import { PostItem } from "@/common/types/post.type";
 import ReactHtmlParser from "react-html-parser";
 import useLocalStorage from "@/common/hooks/use-local-storage";
-import ModalAddPost, { ISubmitPost } from "./modal-add-post";
+import ModalAddPost, { ISubmitPost } from "../modal-add-post";
 import { useState } from "react";
 import { useDeletePost, useUpdatePost } from "@/common/hooks/use-post";
 import ModalConfirmation from "./modal-confirmation";
