@@ -17,7 +17,6 @@ import { useDeletePost, useUpdatePost } from "@/common/hooks/use-post";
 import ModalConfirmation from "./modal-confirmation";
 import CustomSnackbar from "@/common/components/snackbar";
 import { useAnswersByPost } from "@/common/hooks/use-comment";
-import { CommentItem } from "@/common/types/comment.type";
 import ListAnswers from "./list-answers";
 
 interface IProps {
@@ -41,7 +40,7 @@ const PostDetails = (props: IProps) => {
   const liked = true;
   const disliked = false;
 
-  const { data: dataComments } = useAnswersByPost({
+  const { data: dataComments, refetch } = useAnswersByPost({
     postId: data.id,
   });
 
@@ -89,6 +88,7 @@ const PostDetails = (props: IProps) => {
       )}
       {showConfirmDelete && (
         <ModalConfirmation
+          message="Are you sure delete this post?"
           onClose={() => setShowConfirmDelete(false)}
           onDelete={() => {
             handleDeletePost(data.id);
@@ -152,7 +152,11 @@ const PostDetails = (props: IProps) => {
 
         <Divider sx={{ mb: 2 }} />
 
-        <ListAnswers data={dataComments} />
+        <ListAnswers
+          data={dataComments}
+          postId={data.id}
+          refetchData={refetch}
+        />
       </Box>
     </>
   );
