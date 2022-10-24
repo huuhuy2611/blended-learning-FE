@@ -33,7 +33,7 @@ const ArticleEditor = (props: IProps) => {
       initState = EditorState.createWithContent(contentState);
     }
     return initState;
-  }, [value]);
+  }, []);
 
   const [editorState, setEditorState] = useState(defaultEditorState);
 
@@ -51,6 +51,22 @@ const ArticleEditor = (props: IProps) => {
     const isEmpty = isEmptyEditor();
     onChange(isEmpty ? "" : data);
   }, [editorState]);
+
+  useEffect(() => {
+    const data = draftToHtml(
+      convertToRaw(defaultEditorState?.getCurrentContent())
+    );
+
+    console.log(1111111, value, data);
+    // if (!value) {
+    //   const emptyEditor = EditorState.push(
+    //     editorState,
+    //     ContentState.createFromText(""),
+    //     "remove-range"
+    //   );
+    //   setEditorState(emptyEditor);
+    // }
+  }, [value]);
 
   return (
     <Box
