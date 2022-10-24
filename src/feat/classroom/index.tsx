@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Box, Card, Grid } from "@mui/material";
 import LeftClassroom from "./left-classroom";
-import PostDetails from "./post-details";
+import PostDetails from "./right-classroom/post-details";
 import { useRouter } from "next/router";
 import { usePortsByClassroom } from "@/common/hooks/use-post";
 import { PostItem } from "@/common/types/post.type";
@@ -46,21 +46,20 @@ const Classroom = () => {
       setSelectedPostIndex(indexPost);
     }
 
-    setPostSelected(dataPosts[indexPost || selectedPostIndex]);
+    setPostSelected(dataPosts[indexPost >= 0 ? indexPost : selectedPostIndex]);
   }, [dataPosts]);
 
   return (
     <>
       <Card sx={{ height: "100%", p: 3 }}>
         <Grid container spacing={1} sx={{ height: "100%" }}>
-          <Grid item xs={12} sx={{ height: "10%" }}>
+          <Grid item xs={12} sx={{ height: "fit-content" }}>
             <Box sx={{ width: "100%", background: "orange" }}>[Header]</Box>
           </Grid>
-          <Grid item xs={4} sx={{ height: "80%" }}>
+          <Grid item xs={4}>
             <Box
               sx={{
-                width: "100%",
-                height: "80vh",
+                height: "calc(100vh - 96px)",
               }}
             >
               <LeftClassroom
@@ -75,8 +74,8 @@ const Classroom = () => {
           </Grid>
 
           {postSelected && (
-            <Grid item xs={8} sx={{ height: "80%" }}>
-              <Box sx={{ width: "100%" }}>
+            <Grid item xs={8}>
+              <Box sx={{ height: "calc(100vh - 96px)", overflowY: "auto" }}>
                 <PostDetails
                   data={postSelected || {}}
                   onUpdatePostSuccess={() => refetch()}

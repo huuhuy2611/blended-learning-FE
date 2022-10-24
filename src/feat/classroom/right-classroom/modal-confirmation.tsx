@@ -11,12 +11,13 @@ import {
 import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
 
 interface IProps {
+  message: string;
   onClose: () => void;
   onDelete: () => void;
 }
 
 const ModalConfirmation = (props: IProps) => {
-  const { onClose, onDelete } = props;
+  const { message, onClose, onDelete } = props;
 
   return (
     <Dialog
@@ -32,18 +33,21 @@ const ModalConfirmation = (props: IProps) => {
     >
       <DialogTitle id="alert-dialog-title">
         <Box className="div-center" sx={{ justifyContent: "space-between" }}>
-          <Typography variant="h4">Delete post</Typography>
+          <Typography variant="h4">Delete confirmation</Typography>
           <IconButton onClick={onClose}>
             <CloseTwoToneIcon />
           </IconButton>
         </Box>
       </DialogTitle>
       <DialogContent>
-        <Typography variant="body1">Are you sure delete this post?</Typography>
+        <Typography variant="body1">{message}</Typography>
       </DialogContent>
       <DialogActions>
-        <SecondaryButton onClick={onClose}>Cancel</SecondaryButton>
+        <SecondaryButton sx={{ width: "50%" }} onClick={onClose}>
+          Cancel
+        </SecondaryButton>
         <PrimaryButton
+          sx={{ width: "50%" }}
           color="error"
           onClick={(e) => {
             e.preventDefault();

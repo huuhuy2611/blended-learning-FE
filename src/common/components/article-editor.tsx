@@ -1,4 +1,4 @@
-import React, { Component, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { EditorState, convertToRaw, ContentState } from "draft-js";
 import draftToHtml from "draftjs-to-html";
 import { EditorProps } from "react-draft-wysiwyg";
@@ -14,7 +14,7 @@ const Editor = dynamic<EditorProps>(
 );
 
 interface IProps {
-  value: string;
+  value: string | null;
   onChange: (value: string) => void;
   placeholder?: string;
 }
@@ -24,16 +24,20 @@ const ArticleEditor = (props: IProps) => {
   const { value, onChange, placeholder } = props;
 
   const defaultEditorState = useMemo(() => {
-    const contentBlock = htmlToDraft(value);
     let initState = EditorState.createEmpty();
-    if (contentBlock) {
-      const contentState = ContentState.createFromBlockArray(
-        contentBlock?.contentBlocks
-      );
-      initState = EditorState.createWithContent(contentState);
+
+    if (!value) {
+      return initState;
     }
+
+    const contentBlock = htmlToDraft(value);
+    const contentState = ContentState.createFromBlockArray(
+      contentBlock?.contentBlocks
+    );
+    initState = EditorState.createWithContent(contentState);
+
     return initState;
-  }, [value]);
+  }, []);
 
   const [editorState, setEditorState] = useState(defaultEditorState);
 
@@ -52,6 +56,13 @@ const ArticleEditor = (props: IProps) => {
     onChange(isEmpty ? "" : data);
   }, [editorState]);
 
+  useEffect(() => {
+    if (value === null) {
+      const emptyEditor = EditorState.createEmpty();
+      setEditorState(emptyEditor);
+    }
+  }, [value]);
+
   return (
     <Box
       sx={{
@@ -63,6 +74,9 @@ const ArticleEditor = (props: IProps) => {
           border: `1px solid ${theme.palette.primary.main_12}`,
           borderRadius: 0.5,
           minHeight: "200px",
+        },
+        "& .public-DraftStyleDefault-block": {
+          m: 1,
         },
       }}
     >

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   List,
@@ -9,6 +9,8 @@ import {
   InputAdornment,
   useTheme,
   CircularProgress,
+  Alert,
+  Snackbar,
 } from "@mui/material";
 import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
 import AddTwoToneIcon from "@mui/icons-material/AddTwoTone";
@@ -16,6 +18,7 @@ import { PrimaryButton } from "@/common/components/button";
 import { PostItem } from "@/common/types/post.type";
 import ModalAddPost, { ISubmitPost } from "../modal-add-post";
 import { useAddPost } from "@/common/hooks/use-post";
+import CustomSnackbar from "@/common/components/snackbar";
 
 interface IProps {
   data: PostItem[] | undefined;
@@ -38,15 +41,28 @@ const LeftClass = (props: IProps) => {
   } = props;
 
   const [showModalAddPost, setShowModalAddPost] = useState(false);
+  const [labelSnackbar, setLabelSnackbar] = useState("");
 
   const { mutateAsync: handleAddPost } = useAddPost({
     config: {
       onSuccess: () => {
         setShowModalAddPost(false);
         addPostSuccess?.();
+        setLabelSnackbar("Add post successful!");
       },
     },
   });
+
+  useEffect(() => {
+    if (!labelSnackbar) return;
+
+    const funcInterval = setInterval(() => {
+      setLabelSnackbar("");
+    }, 2000);
+    return () => {
+      clearInterval(funcInterval);
+    };
+  }, [labelSnackbar]);
 
   return (
     <>
@@ -56,12 +72,17 @@ const LeftClass = (props: IProps) => {
           onSubmit={(dataSubmit: ISubmitPost) => handleAddPost(dataSubmit)}
         />
       )}
+      {labelSnackbar && <CustomSnackbar message={labelSnackbar} />}
+
       <Card
         sx={{
           height: "100%",
           boxShadow: 6,
           borderRadius: 1,
           border: `1px solid ${theme.palette.primary.main_12}`,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
         }}
       >
         <Box sx={{ p: 2, boxShadow: 1 }}>
