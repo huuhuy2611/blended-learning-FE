@@ -1,30 +1,44 @@
 import { CommentItem } from "@/common/types/comment.type";
-import { Box, Button, Divider, TextField, Typography } from "@mui/material";
-import useLocalStorage from "@/common/hooks/use-local-storage";
+import {
+  Box,
+  Divider,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
+} from "@mui/material";
 import ArticleEditor from "@/common/components/article-editor";
 import { useEffect, useState } from "react";
 import { PrimaryButton } from "@/common/components/button";
-import { useAddComment, useDeleteComment } from "@/common/hooks/use-comment";
+import { useAddComment, useAnswersByPost } from "@/common/hooks/use-comment";
 import CustomSnackbar from "@/common/components/snackbar";
-import ModalConfirmation from "../modal-confirmation";
 import AnswerItem from "./answer-item";
+import { OrderApi, ORDER_ITEM, ORDER_LABEL } from "@/common/types/order.type";
 
 interface IProps {
-  data: CommentItem[];
   postId: string;
-  refetchData?: () => void;
 }
 
 const ListAnswers = (props: IProps) => {
-  const { data, postId, refetchData } = props;
+  const { postId } = props;
 
+  if (!postId) return null;
+
+  const [orderComments, setOrderComments] = useState<OrderApi>("DESC");
   const [inputAnswer, setInputAnswer] = useState<string | null>(null);
   const [labelSnackbar, setLabelSnackbar] = useState("");
+
+  const { data: dataComments, refetch: refetchDataComments } = useAnswersByPost(
+    {
+      postId,
+      order: orderComments,
+    }
+  );
 
   const { mutateAsync: handleAddComment } = useAddComment({
     config: {
       onSuccess: () => {
-        refetchData?.();
+        refetchDataComments();
         setInputAnswer(null);
       },
     },
@@ -49,29 +63,44 @@ const ListAnswers = (props: IProps) => {
         className="div-center"
         sx={{ justifyContent: "space-between", mb: 3 }}
       >
-        <Typography variant="h5">{data?.length || 0} Answers</Typography>
+        <Typography variant="h5">
+          {dataComments?.length || 0} Answers
+        </Typography>
         <Box className="div-center">
           <Typography variant="body1" sx={{ mr: 1 }}>
-            Sort by
+            Sort by:
           </Typography>
-          <TextField
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={orderComments}
+            onChange={(e) => setOrderComments(e.target.value as OrderApi)}
             sx={{
-              "& .MuiInputBase-input.MuiOutlinedInput-input": {
+              minWidth: "120px",
+              "& .MuiSelect-select.MuiInputBase-input.MuiOutlinedInput-input": {
                 p: 1,
               },
             }}
-          />
+          >
+            {ORDER_LABEL.map((item, index) => (
+              <MenuItem key={index} value={ORDER_ITEM[item]}>
+                {item}
+              </MenuItem>
+            ))}
+          </Select>
         </Box>
       </Box>
 
       <Box>
-        {data?.map((item: CommentItem, index) => (
+        {dataComments?.map((item: CommentItem, index: number) => (
           <Box key={index} sx={{ mb: 3 }}>
             <AnswerItem
               data={item}
               refetchData={(label: string) => {
-                setLabelSnackbar(label);
-                refetchData?.();
+                if (label) {
+                  setLabelSnackbar(label);
+                }
+                refetchDataComments();
               }}
             />
           </Box>

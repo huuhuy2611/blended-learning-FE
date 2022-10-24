@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
   Box,
   List,
@@ -9,8 +9,9 @@ import {
   InputAdornment,
   useTheme,
   CircularProgress,
-  Alert,
-  Snackbar,
+  MenuItem,
+  Select,
+  Typography,
 } from "@mui/material";
 import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
 import AddTwoToneIcon from "@mui/icons-material/AddTwoTone";
@@ -19,14 +20,17 @@ import { PostItem } from "@/common/types/post.type";
 import ModalAddPost, { ISubmitPost } from "../modal-add-post";
 import { useAddPost } from "@/common/hooks/use-post";
 import CustomSnackbar from "@/common/components/snackbar";
+import { OrderApi, ORDER_ITEM, ORDER_LABEL } from "@/common/types/order.type";
 
 interface IProps {
   data: PostItem[] | undefined;
   selectedPostIndex: number;
   keySearch: string;
   onSearch: (value: string) => void;
+  order: OrderApi;
+  setOrder: Dispatch<SetStateAction<OrderApi>>;
   onClick: (id: string) => void;
-  addPostSuccess?: () => void;
+  refetchData?: () => void;
 }
 
 const LeftClass = (props: IProps) => {
@@ -36,8 +40,10 @@ const LeftClass = (props: IProps) => {
     onClick,
     keySearch,
     onSearch,
-    addPostSuccess,
+    refetchData,
     selectedPostIndex,
+    order,
+    setOrder,
   } = props;
 
   const [showModalAddPost, setShowModalAddPost] = useState(false);
@@ -47,7 +53,7 @@ const LeftClass = (props: IProps) => {
     config: {
       onSuccess: () => {
         setShowModalAddPost(false);
-        addPostSuccess?.();
+        refetchData?.();
         setLabelSnackbar("Add post successful!");
       },
     },
@@ -88,6 +94,7 @@ const LeftClass = (props: IProps) => {
         <Box sx={{ p: 2, boxShadow: 1 }}>
           <TextField
             sx={{
+              mb: 1,
               "& .MuiInputBase-input.MuiOutlinedInput-input": {
                 p: 1,
               },
@@ -104,6 +111,30 @@ const LeftClass = (props: IProps) => {
               ),
             }}
           />
+          <Box className="div-center">
+            <Typography variant="body1" sx={{ width: "80px" }}>
+              Sort by:{" "}
+            </Typography>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={order}
+              onChange={(e) => setOrder(e.target.value as OrderApi)}
+              fullWidth
+              sx={{
+                "& .MuiSelect-select.MuiInputBase-input.MuiOutlinedInput-input":
+                  {
+                    p: 1,
+                  },
+              }}
+            >
+              {ORDER_LABEL.map((item, index) => (
+                <MenuItem key={index} value={ORDER_ITEM[item]}>
+                  {item}
+                </MenuItem>
+              ))}
+            </Select>
+          </Box>
         </Box>
         <Box sx={{ height: "80%", overflow: "auto" }}>
           {data ? (

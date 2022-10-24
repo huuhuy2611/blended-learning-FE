@@ -6,22 +6,24 @@ import {
 } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { z } from "zod";
-import { qClient } from "../lib/react-query";
 import {
   AddCommentPayload,
   CommentItem,
   CommentItemWithoutUser,
   UpdateCommentPayload,
+  VoteCommentPayload,
   ZAddCommentPayload,
   ZCommentItem,
   ZCommentItemWithoutUser,
   ZUpdateCommentPayload,
+  ZVoteCommentPayload,
 } from "../types/comment.type";
+import { OrderApi, ORDER_API } from "../types/order.type";
 import useApiAuth from "./use-api";
-import useCallbackRef from "./use-callback-ref";
 
 export function useAnswersByPost(args?: {
   postId: string;
+  order?: OrderApi;
   config?: UseQueryOptions<CommentItem[], Error, CommentItem[], Array<any>>;
 }) {
   const apiAuth = useApiAuth();
@@ -30,15 +32,21 @@ export function useAnswersByPost(args?: {
     () =>
       z
         .function()
-        .args(z.string())
-        .implement(async (postId: string) => {
-          const { data } = await apiAuth.get(`/comments?postId=${postId}`);
+        .args(z.string(), z.enum(ORDER_API))
+        .implement(async (postId: string, order: OrderApi) => {
+          const { data } = await apiAuth.get(
+            `/comments?postId=${postId}&order=${order}`
+          );
           return data.map((item: unknown) => ZCommentItem.parse(item));
         }),
     []
   );
 
-  const getCommentsByPostQueryKeys = ["get-posts-by-classroom", args?.postId];
+  const getCommentsByPostQueryKeys = [
+    "get-posts-by-classroom",
+    args?.postId,
+    args?.order,
+  ];
 
   // const optimisticUpdate = useCallbackRef(
   //   (updater: <T extends CommentItem[] | undefined>(x: T) => T) =>
@@ -46,10 +54,31 @@ export function useAnswersByPost(args?: {
   // );
 
   const getCommentsByPostQuery = useQuery(getCommentsByPostQueryKeys, () =>
-    fetchPosts(args?.postId || "")
+    fetchPosts(args?.postId || "", args?.order || "DESC")
   );
 
   return { ...getCommentsByPostQuery };
+}
+
+export function useVoteComment(args?: {
+  config?: UseMutationOptions<boolean, Error, VoteCommentPayload, Array<any>>;
+}) {
+  const apiAuth = useApiAuth();
+
+  const voteCommentMutation = useMutation(
+    z
+      .function()
+      .args(ZVoteCommentPayload)
+      .implement(async (payload: VoteCommentPayload) => {
+        const { commentId, ...rest } = payload;
+        await apiAuth.put(`/comments/vote/${commentId}`, rest);
+
+        return true;
+      }),
+    args?.config
+  );
+
+  return voteCommentMutation;
 }
 
 export function useAddComment(args?: {

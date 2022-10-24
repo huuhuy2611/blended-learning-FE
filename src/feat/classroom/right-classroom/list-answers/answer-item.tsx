@@ -5,7 +5,11 @@ import ReactHtmlParser from "react-html-parser";
 import { CommentItem } from "@/common/types/comment.type";
 import useLocalStorage from "@/common/hooks/use-local-storage";
 import ModalConfirmation from "../modal-confirmation";
-import { useDeleteComment, useUpdateComment } from "@/common/hooks/use-comment";
+import {
+  useDeleteComment,
+  useUpdateComment,
+  useVoteComment,
+} from "@/common/hooks/use-comment";
 import { useState } from "react";
 import ArticleEditor from "@/common/components/article-editor";
 import { PrimaryButton } from "@/common/components/button";
@@ -21,23 +25,28 @@ const AnswerItem = (props: IProps) => {
   const isEdited = data.createdAt !== data.updatedAt;
   const formatCreatedAt = format(
     new Date(data.createdAt),
-    "yyyy-MM-dd HH:mm:ss"
+    "hh:mma (dd/MM/yyyy)"
   );
   const formatUpdatedAt = format(
     new Date(data.updatedAt),
-    "yyyy-MM-dd HH:mm:ss"
+    "hh:mma (dd/MM/yyyy)"
   );
 
   if (!data) return null;
 
   const [userId] = useLocalStorage("userId", "");
 
-  const liked = true;
-  const disliked = false;
-
   const [isEditing, setIsEditing] = useState(false);
   const [contentAnswer, setContentAnswer] = useState(data.content);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+
+  const { mutateAsync: handleVoteComment } = useVoteComment({
+    config: {
+      onSuccess: () => {
+        refetchData?.("");
+      },
+    },
+  });
 
   const { mutateAsync: handleUpdateComment } = useUpdateComment({
     config: {
@@ -57,8 +66,6 @@ const AnswerItem = (props: IProps) => {
     },
   });
 
-  console.log(111, data);
-
   return (
     <>
       {showConfirmDelete && (
@@ -77,8 +84,8 @@ const AnswerItem = (props: IProps) => {
         <Typography variant="subtitle1">{data.user.email} </Typography>
         <Typography variant="caption" sx={{ ml: 2 }}>
           {!isEdited
-            ? `Created at: ${formatCreatedAt}`
-            : `Updated at: ${formatUpdatedAt}`}
+            ? `Created: ${formatCreatedAt}`
+            : `Modified: ${formatUpdatedAt}`}
         </Typography>
         {isEditing && (
           <Typography variant="caption" sx={{ color: "red", ml: 1 }}>
@@ -111,16 +118,28 @@ const AnswerItem = (props: IProps) => {
           <Box sx={{ ml: 5 }}>
             <Typography variant="body1">
               {ReactHtmlParser(data.content)}
-              {isEdited && <>(edited)</>}
+              {isEdited && <>(EDITED)</>}
             </Typography>
 
             <Box className="div-center" sx={{ justifyContent: "flex-start" }}>
               <Box sx={{ mr: 3 }}>
                 <LikeDislike
-                  isLiked={liked}
-                  isDisliked={disliked}
+                  isLiked={data.isUpVote}
+                  isDisliked={data.isDownVote}
                   numLiked={data.numUpVote || 0}
                   numDisliked={data.numDownVote || 0}
+                  onLike={() => {
+                    handleVoteComment({
+                      commentId: data.id,
+                      isUpVote: !data.isUpVote,
+                    });
+                  }}
+                  onDislike={() => {
+                    handleVoteComment({
+                      commentId: data.id,
+                      isDownVote: !data.isDownVote,
+                    });
+                  }}
                 />
               </Box>
 

@@ -6,21 +6,26 @@ import {
 } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { z } from "zod";
+import { OrderApi, ORDER_API } from "../types/order.type";
 import {
   AddPostPayload,
   PostItem,
   PostItemWithoutUser,
   UpdatePostPayload,
+  VotePostPayload,
   ZAddPostPayload,
   ZPostItem,
   ZPostItemWithoutUser,
   ZUpdatePostPayload,
+  ZVotePayload,
+  ZVotePostPayload,
 } from "../types/post.type";
 import useApiAuth from "./use-api";
 
 export function usePortsByClassroom(args?: {
   classroomId: string;
-  keySearch: string;
+  keySearch?: string;
+  order?: OrderApi;
   config?: UseQueryOptions<PostItem[], Error, PostItem[], Array<any>>;
 }) {
   const apiAuth = useApiAuth();
@@ -29,21 +34,28 @@ export function usePortsByClassroom(args?: {
     () =>
       z
         .function()
-        .args(z.string(), z.string())
-        .implement(async (classroomId: string, keySearch: string) => {
-          const { data } = await apiAuth.get(
-            `/posts/posts-by-classroom/${classroomId}?keySearch=${
-              keySearch || ""
-            }`
-          );
-          return data.map((item: unknown) => ZPostItem.parse(item));
-        }),
+        .args(z.string(), z.string(), z.enum(ORDER_API))
+        .implement(
+          async (classroomId: string, keySearch: string, order: OrderApi) => {
+            const { data } = await apiAuth.get(
+              `/posts/posts-by-classroom/${classroomId}?keySearch=${
+                keySearch || ""
+              }&order=${order}`
+            );
+            return data.map((item: unknown) => ZPostItem.parse(item));
+          }
+        ),
     []
   );
 
   const getPostsByClassroomQuery = useQuery(
-    ["get-posts-by-classroom", args?.classroomId, args?.keySearch],
-    () => fetchPosts(args?.classroomId || "", args?.keySearch || "")
+    ["get-posts-by-classroom", args?.classroomId, args?.keySearch, args?.order],
+    () =>
+      fetchPosts(
+        args?.classroomId || "",
+        args?.keySearch || "",
+        args?.order || "DESC"
+      )
   );
 
   return getPostsByClassroomQuery;
@@ -93,6 +105,27 @@ export function useUpdatePost(args?: {
   );
 
   return updatePostMutation;
+}
+
+export function useVotePost(args?: {
+  config?: UseMutationOptions<boolean, Error, VotePostPayload, Array<any>>;
+}) {
+  const apiAuth = useApiAuth();
+
+  const votePostMutation = useMutation(
+    z
+      .function()
+      .args(ZVotePostPayload)
+      .implement(async (payload: VotePostPayload) => {
+        const { postId, ...rest } = payload;
+        await apiAuth.put(`/posts/vote/${postId}`, rest);
+
+        return true;
+      }),
+    args?.config
+  );
+
+  return votePostMutation;
 }
 
 export function useDeletePost(args?: {

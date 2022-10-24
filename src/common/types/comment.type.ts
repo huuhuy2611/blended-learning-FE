@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ZPostItem } from "./post.type";
+import { ZPostItem, ZVotePayload } from "./post.type";
 
 export const ZCommentItem = ZPostItem.omit({ title: true });
 export type CommentItem = z.infer<typeof ZCommentItem>;
@@ -22,3 +22,8 @@ export const ZUpdateCommentPayload = ZAddCommentPayload.omit({
   commentId: z.string(),
 });
 export type UpdateCommentPayload = z.infer<typeof ZUpdateCommentPayload>;
+
+export const ZVoteCommentPayload = ZVotePayload.extend({
+  commentId: z.string(),
+});
+export type VoteCommentPayload = z.infer<typeof ZVoteCommentPayload>;
