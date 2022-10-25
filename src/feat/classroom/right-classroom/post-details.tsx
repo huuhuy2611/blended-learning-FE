@@ -1,31 +1,27 @@
-import {
-  Alert,
-  Box,
-  Button,
-  Divider,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Divider, Typography } from "@mui/material";
 import dayjs from "dayjs";
 import LikeDislike from "@/common/components/like-dislike";
 import { PostItem } from "@/common/types/post.type";
 import ReactHtmlParser from "react-html-parser";
 import useLocalStorage from "@/common/hooks/use-local-storage";
 import ModalAddPost, { ISubmitPost } from "../modal-add-post";
-import { useEffect, useState } from "react";
-import { useDeletePost, useUpdatePost } from "@/common/hooks/use-post";
+import { useState } from "react";
+import {
+  useDeletePost,
+  useUpdatePost,
+  useVotePost,
+} from "@/common/hooks/use-post";
 import ModalConfirmation from "./modal-confirmation";
-import CustomSnackbar from "@/common/components/snackbar";
 import { useAnswersByPost } from "@/common/hooks/use-comment";
 import ListAnswers from "./list-answers";
 
 interface IProps {
   data: PostItem;
-  onUpdatePostSuccess?: () => void;
+  refetchData?: (label: string) => void;
 }
 
 const PostDetails = (props: IProps) => {
-  const { data, onUpdatePostSuccess } = props;
+  const { data, refetchData } = props;
   const [userId] = useLocalStorage("userId", "");
 
   if (!data) return null;
@@ -35,21 +31,20 @@ const PostDetails = (props: IProps) => {
 
   const [showEditPost, setShowEditPost] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
-  const [labelSnackbar, setLabelSnackbar] = useState("");
 
-  const liked = true;
-  const disliked = false;
-
-  const { data: dataComments, refetch } = useAnswersByPost({
-    postId: data.id,
+  const { mutateAsync: handleVotePost } = useVotePost({
+    config: {
+      onSuccess: () => {
+        refetchData?.("");
+      },
+    },
   });
 
   const { mutateAsync: handleUpdatePost } = useUpdatePost({
     config: {
       onSuccess: () => {
         setShowEditPost(false);
-        onUpdatePostSuccess?.();
-        setLabelSnackbar("Update post successful!");
+        refetchData?.("Update post successful!");
       },
     },
   });
@@ -58,22 +53,10 @@ const PostDetails = (props: IProps) => {
     config: {
       onSuccess: () => {
         setShowEditPost(false);
-        onUpdatePostSuccess?.();
-        setLabelSnackbar("Delete post successful!");
+        refetchData?.("Delete post successful!");
       },
     },
   });
-
-  useEffect(() => {
-    if (!labelSnackbar) return;
-
-    const funcInterval = setInterval(() => {
-      setLabelSnackbar("");
-    }, 2000);
-    return () => {
-      clearInterval(funcInterval);
-    };
-  }, [labelSnackbar]);
 
   return (
     <>
@@ -96,7 +79,6 @@ const PostDetails = (props: IProps) => {
           }}
         />
       )}
-      {labelSnackbar && <CustomSnackbar message={labelSnackbar} />}
       <Box sx={{ p: 2 }}>
         <Box sx={{ mb: 1 }}>
           <Typography variant="h4">{data.title}</Typography>
@@ -143,20 +125,28 @@ const PostDetails = (props: IProps) => {
             {ReactHtmlParser(data.content)}
           </Typography>
           <LikeDislike
-            isLiked={liked}
-            isDisliked={disliked}
+            isLiked={data.isUpVote}
+            isDisliked={data.isDownVote}
             numLiked={data.numUpVote || 0}
             numDisliked={data.numDownVote || 0}
+            onLike={() => {
+              handleVotePost({
+                postId: data.id,
+                isUpVote: !data.isUpVote,
+              });
+            }}
+            onDislike={() => {
+              handleVotePost({
+                postId: data.id,
+                isDownVote: !data.isDownVote,
+              });
+            }}
           />
         </Box>
 
         <Divider sx={{ mb: 2 }} />
 
-        <ListAnswers
-          data={dataComments}
-          postId={data.id}
-          refetchData={refetch}
-        />
+        <ListAnswers postId={data.id} />
       </Box>
     </>
   );

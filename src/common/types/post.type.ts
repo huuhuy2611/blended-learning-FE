@@ -7,6 +7,8 @@ export const ZPostItem = z.object({
   id: z.string(),
   title: z.string(),
   content: z.string(),
+  isUpVote: z.boolean().optional(),
+  isDownVote: z.boolean().optional(),
   numUpVote: z.number().optional(),
   numDownVote: z.number().optional(),
   user: ZUserItem,
@@ -29,3 +31,14 @@ export const ZUpdatePostPayload = ZAddPostPayload.extend({
   postId: z.string(),
 });
 export type UpdatePostPayload = z.infer<typeof ZUpdatePostPayload>;
+
+export const ZVotePayload = z.object({
+  isUpVote: z.boolean().optional(),
+  isDownVote: z.boolean().optional(),
+});
+export type VotePayload = z.infer<typeof ZVotePayload>;
+
+export const ZVotePostPayload = ZVotePayload.extend({
+  postId: z.string(),
+});
+export type VotePostPayload = z.infer<typeof ZVotePostPayload>;
