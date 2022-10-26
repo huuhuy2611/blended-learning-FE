@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Box, Card, Grid } from "@mui/material";
+import { useEffect, useMemo, useState } from "react";
+import { Box, Card, Grid, Typography } from "@mui/material";
 import LeftClassroom from "./left-classroom";
 import PostDetails from "./right-classroom/post-details";
 import { useRouter } from "next/router";
@@ -10,6 +10,15 @@ import useDebounce, {
 } from "@/common/hooks/use-debounce";
 import CustomSnackbar from "@/common/components/snackbar";
 import { OrderApi } from "@/common/types/order.type";
+import BasicTabs, { TabItem } from "@/common/components/tabs";
+import Syllabus from "./syllabus";
+
+const TAB_TYPE = ["LIST_POSTS", "SYLLABUS"] as const;
+type TabType = typeof TAB_TYPE[number];
+
+interface TabItemClassroom extends TabItem {
+  type: TabType;
+}
 
 const Classroom = () => {
   const router = useRouter();
@@ -29,9 +38,11 @@ const Classroom = () => {
     order: orderPosts,
   });
 
+  const [labelSnackbar, setLabelSnackbar] = useState("");
+  const [tabIndex, setTabIndex] = useState(0);
+
   const [postSelected, setPostSelected] = useState<PostItem | null>(null);
   const [selectedPostIndex, setSelectedPostIndex] = useState(0);
-  const [labelSnackbar, setLabelSnackbar] = useState("");
 
   const handleShowPostDetails = (id: string) => {
     const tempPostSelected = dataPosts.find((item: PostItem) => item.id === id);
@@ -40,40 +51,35 @@ const Classroom = () => {
     setPostSelected(tempPostSelected);
   };
 
-  useEffect(() => {
-    if (!dataPosts) return;
+  const tabItems = useMemo<TabItemClassroom[]>(() => {
+    return [
+      {
+        type: "LIST_POSTS",
+        label: (
+          <Typography variant="subtitle1" sx={{ p: 2 }}>
+            List posts
+          </Typography>
+        ),
+        render: <></>,
+      },
+      {
+        type: "SYLLABUS",
+        label: (
+          <Typography variant="subtitle1" sx={{ p: 2 }}>
+            Syllabus
+          </Typography>
+        ),
+        render: <></>,
+      },
+    ];
+  }, []);
 
-    const indexPost = dataPosts.findIndex(
-      (item: PostItem) => item.id === postSelected?.id
-    );
+  const renderTabItem = () => {
+    const typeCurrentTab = tabItems[tabIndex].type;
 
-    if (indexPost >= 0) {
-      setSelectedPostIndex(indexPost);
-    }
-
-    setPostSelected(dataPosts[indexPost >= 0 ? indexPost : selectedPostIndex]);
-  }, [dataPosts]);
-
-  useEffect(() => {
-    if (!labelSnackbar) return;
-
-    const funcInterval = setInterval(() => {
-      setLabelSnackbar("");
-    }, 2000);
-    return () => {
-      clearInterval(funcInterval);
-    };
-  }, [labelSnackbar]);
-
-  return (
-    <>
-      {labelSnackbar && <CustomSnackbar message={labelSnackbar} />}
-
-      <Card sx={{ height: "100%", p: 3 }}>
-        <Grid container spacing={1} sx={{ height: "100%" }}>
-          <Grid item xs={12} sx={{ height: "fit-content" }}>
-            <Box sx={{ width: "100%", background: "orange" }}>[Header]</Box>
-          </Grid>
+    if (typeCurrentTab === "LIST_POSTS") {
+      return (
+        <>
           <Grid item xs={4}>
             <Box
               sx={{
@@ -108,6 +114,59 @@ const Classroom = () => {
               </Box>
             </Grid>
           )}
+        </>
+      );
+    }
+
+    if (typeCurrentTab === "SYLLABUS") {
+      return <Syllabus />;
+    }
+
+    return null;
+  };
+
+  useEffect(() => {
+    if (!dataPosts) return;
+
+    const indexPost = dataPosts.findIndex(
+      (item: PostItem) => item.id === postSelected?.id
+    );
+
+    if (indexPost >= 0) {
+      setSelectedPostIndex(indexPost);
+    }
+
+    setPostSelected(dataPosts[indexPost >= 0 ? indexPost : selectedPostIndex]);
+  }, [dataPosts]);
+
+  useEffect(() => {
+    if (!labelSnackbar) return;
+
+    const funcInterval = setInterval(() => {
+      setLabelSnackbar("");
+    }, 2000);
+    return () => {
+      clearInterval(funcInterval);
+    };
+  }, [labelSnackbar]);
+
+  return (
+    <>
+      {labelSnackbar && <CustomSnackbar message={labelSnackbar} />}
+
+      <Card sx={{ height: "100%", p: 3 }}>
+        <Grid container spacing={1} sx={{ height: "100%" }}>
+          <Grid item xs={12} sx={{ height: "fit-content" }}>
+            <Box sx={{ width: "100%" }}>
+              <BasicTabs
+                tabs={tabItems}
+                tab={tabIndex}
+                onChange={(index) => setTabIndex(index)}
+                TabsProps={{ variant: "fullWidth" }}
+              />
+            </Box>
+          </Grid>
+          {renderTabItem()}
         </Grid>
       </Card>
     </>
