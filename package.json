@@ -49,6 +49,7 @@
     "@types/html-to-draftjs": "^1.4.0",
     "@types/html-to-text": "^8.1.1",
     "@types/js-cookie": "^3.0.2",
+    "@types/lodash": "^4.14.186",
     "@types/node": "18.7.21",
     "@types/nprogress": "^0.2.0",
     "@types/react-draft-wysiwyg": "^1.13.4",

@@ -11,7 +11,7 @@ import useDebounce, {
 import CustomSnackbar from "@/common/components/snackbar";
 import { OrderApi } from "@/common/types/order.type";
 import BasicTabs, { TabItem } from "@/common/components/tabs";
-import Syllabus from "./Syllabus";
+import Syllabus from "./syllabus";
 
 const TAB_TYPE = ["LIST_POSTS", "SYLLABUS"] as const;
 type TabType = typeof TAB_TYPE[number];
