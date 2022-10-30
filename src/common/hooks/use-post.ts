@@ -22,7 +22,7 @@ import {
 } from "../types/post.type";
 import useApiAuth from "./use-api";
 
-export function usePortsByClassroom(args?: {
+export function usePostsByClassroom(args?: {
   classroomId: string;
   keySearch?: string;
   order?: OrderApi;

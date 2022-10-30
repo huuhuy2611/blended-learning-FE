@@ -10,14 +10,29 @@ interface IProps {
   numDisliked: number;
   onLike?: () => void;
   onDislike?: () => void;
+  readOnly?: boolean;
 }
 
 const LikeDislike = (props: IProps) => {
-  const { isLiked, isDisliked, numLiked, numDisliked, onLike, onDislike } =
-    props;
+  const {
+    isLiked,
+    isDisliked,
+    numLiked,
+    numDisliked,
+    onLike,
+    onDislike,
+    readOnly,
+  } = props;
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box
+      sx={{
+        display: "flex",
+        "& .MuiButtonBase-root.MuiIconButton-root": {
+          pointerEvents: readOnly ? "none" : "visible",
+        },
+      }}
+    >
       <IconButton onClick={onLike} className="div-center">
         <ThumbUpTwoToneIcon
           color={isLiked ? "primary" : "action"}

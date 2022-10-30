@@ -1,4 +1,10 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import {
   Box,
   List,
@@ -21,6 +27,13 @@ import ModalAddPost, { ISubmitPost } from "../modal-add-post";
 import { useAddPost } from "@/common/hooks/use-post";
 import CustomSnackbar from "@/common/components/snackbar";
 import { OrderApi, ORDER_ITEM, ORDER_LABEL } from "@/common/types/order.type";
+import LikeDislike from "@/common/components/like-dislike";
+import { format } from "date-fns";
+import { convert } from "html-to-text";
+import ReactHtmlParser from "react-html-parser";
+import useDebounce, {
+  SEARCH_DEBOUNCE_TIMEOUT,
+} from "@/common/hooks/use-debounce";
 
 interface IProps {
   data: PostItem[] | undefined;
@@ -46,6 +59,8 @@ const LeftClass = (props: IProps) => {
     setOrder,
   } = props;
 
+  const debounceKeySearch = useDebounce(keySearch, SEARCH_DEBOUNCE_TIMEOUT);
+
   const [showModalAddPost, setShowModalAddPost] = useState(false);
   const [labelSnackbar, setLabelSnackbar] = useState("");
 
@@ -58,6 +73,39 @@ const LeftClass = (props: IProps) => {
       },
     },
   });
+
+  const renderSnippetsContent = useCallback(
+    (item: PostItem) => {
+      const { content } = item;
+      const _content = convert(content).toLowerCase();
+      const lowerCaseKeySearch = debounceKeySearch.toLowerCase();
+
+      const lengthKeySearch = debounceKeySearch.length;
+      const indexKeySearch = _content.indexOf(lowerCaseKeySearch);
+      const isFirstContent = indexKeySearch - 5 < 0;
+      const isLastContent = indexKeySearch + 5 > _content.length;
+      const snippets = _content
+        .substring(
+          isFirstContent ? 0 : indexKeySearch - 5,
+          indexKeySearch + lengthKeySearch + 5
+        )
+        .replace(
+          lowerCaseKeySearch,
+          `<strong style="color: #3d0099">${lowerCaseKeySearch}</strong>`
+        );
+
+      if (!snippets) return null;
+
+      return (
+        <Typography variant="caption">
+          {!isFirstContent && "..."}
+          {ReactHtmlParser(snippets)}
+          {!isLastContent && "..."}
+        </Typography>
+      );
+    },
+    [debounceKeySearch]
+  );
 
   useEffect(() => {
     if (!labelSnackbar) return;
@@ -152,8 +200,33 @@ const LeftClass = (props: IProps) => {
                       onClick(item.id);
                     }}
                   >
-                    {item.title}
+                    <Box sx={{ width: "100%" }}>
+                      <Box>
+                        {item.title}
+                        {item.createdAt !== item.createdAt && "(EDITED)"}
+                      </Box>
+                      <Box
+                        className="div-center"
+                        sx={{ justifyContent: "space-between" }}
+                      >
+                        <LikeDislike
+                          numLiked={item.numUpVote || 0}
+                          numDisliked={item.numDownVote || 0}
+                          isLiked={!!item.isUpVote}
+                          isDisliked={!!item.isDownVote}
+                          readOnly
+                        />
+                        <Typography variant="caption">
+                          Created{" "}
+                          <strong>
+                            {format(new Date(item.createdAt), "dd/MM/yyyy")}
+                          </strong>
+                        </Typography>
+                      </Box>
+                      {debounceKeySearch && <>{renderSnippetsContent(item)}</>}
+                    </Box>
                   </ListItem>
+
                   <Divider />
                 </Box>
               ))}

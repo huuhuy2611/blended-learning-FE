@@ -15,13 +15,14 @@ const Editor = dynamic<EditorProps>(
 
 interface IProps {
   value: string | null;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
   placeholder?: string;
+  EditorProps?: EditorProps;
 }
 
 const ArticleEditor = (props: IProps) => {
   const theme = useTheme();
-  const { value, onChange, placeholder } = props;
+  const { value, onChange, placeholder, EditorProps } = props;
 
   const defaultEditorState = useMemo(() => {
     let initState = EditorState.createEmpty();
@@ -53,7 +54,7 @@ const ArticleEditor = (props: IProps) => {
   useEffect(() => {
     const data = draftToHtml(convertToRaw(editorState?.getCurrentContent()));
     const isEmpty = isEmptyEditor();
-    onChange(isEmpty ? "" : data);
+    onChange?.(isEmpty ? "" : data);
   }, [editorState]);
 
   useEffect(() => {
@@ -81,10 +82,12 @@ const ArticleEditor = (props: IProps) => {
       }}
     >
       <Editor
+        {...EditorProps}
         editorState={editorState}
         wrapperClassName="demo-wrapper"
         editorClassName="demo-editor"
         onEditorStateChange={setEditorState}
+        toolbarHidden={!!EditorProps?.readOnly}
         toolbar={{
           options: [
             "inline",

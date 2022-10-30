@@ -1,7 +1,17 @@
-import { useQuery, UseQueryOptions } from "@tanstack/react-query";
+import {
+  useMutation,
+  UseMutationOptions,
+  useQuery,
+  UseQueryOptions,
+} from "@tanstack/react-query";
 import { useMemo } from "react";
 import { z } from "zod";
-import { ClassroomItem, ZClassroomItem } from "../types/classroom.type";
+import {
+  ClassroomItem,
+  UpdateClassroomPayload,
+  ZClassroomItem,
+  ZUpdateClassroomPayload,
+} from "../types/classroom.type";
 import useApiAuth from "./use-api";
 
 export function useClassroomsByUser(args?: {
@@ -31,4 +41,58 @@ export function useClassroomsByUser(args?: {
   );
 
   return getClassroomsByUserQuery;
+}
+
+export function useClassroom(args?: {
+  classroomId: string;
+  config?: UseQueryOptions<ClassroomItem, Error, ClassroomItem, Array<any>>;
+}) {
+  const apiAuth = useApiAuth();
+
+  const fetchClassroom = useMemo(
+    () =>
+      z
+        .function()
+        .args(z.string())
+        .implement(async (classroomId: string) => {
+          const { data } = await apiAuth.get(`/classrooms/${classroomId}`);
+          return ZClassroomItem.parse(data);
+        }),
+    []
+  );
+
+  const getClassroomQuery = useQuery(
+    ["get-classroom-query", args?.classroomId],
+    () => fetchClassroom(args?.classroomId || ""),
+    args?.config
+  );
+
+  return getClassroomQuery;
+}
+
+export function useUpdateClassroom(args?: {
+  config?: UseMutationOptions<
+    ClassroomItem,
+    Error,
+    UpdateClassroomPayload,
+    Array<any>
+  >;
+}) {
+  const apiAuth = useApiAuth();
+
+  const updateClassroomMutation = useMutation(
+    z
+      .function()
+      .args(ZUpdateClassroomPayload)
+      .implement(async (payload: UpdateClassroomPayload) => {
+        const { classroomId, ...rest } = payload;
+        const { data } = await apiAuth.put(`/classrooms/${classroomId}`, {
+          ...rest,
+        });
+        return ZClassroomItem.parse(data);
+      }),
+    args?.config
+  );
+
+  return updateClassroomMutation;
 }
