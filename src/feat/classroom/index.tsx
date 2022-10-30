@@ -3,7 +3,7 @@ import { Box, Card, Grid, Typography } from "@mui/material";
 import LeftClassroom from "./left-classroom";
 import PostDetails from "./right-classroom/post-details";
 import { useRouter } from "next/router";
-import { usePortsByClassroom } from "@/common/hooks/use-post";
+import { usePostsByClassroom } from "@/common/hooks/use-post";
 import { PostItem } from "@/common/types/post.type";
 import useDebounce, {
   SEARCH_DEBOUNCE_TIMEOUT,
@@ -32,7 +32,7 @@ const Classroom = () => {
   const debounceKeySearch = useDebounce(keySearch, SEARCH_DEBOUNCE_TIMEOUT);
   const [orderPosts, setOrderPosts] = useState<OrderApi>("DESC");
 
-  const { data: dataPosts, refetch } = usePortsByClassroom({
+  const { data: dataPosts, refetch } = usePostsByClassroom({
     classroomId: classroomId,
     keySearch: debounceKeySearch,
     order: orderPosts,
