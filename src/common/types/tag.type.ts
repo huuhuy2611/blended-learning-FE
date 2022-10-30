@@ -9,7 +9,7 @@ export const ZTagItem = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
   id: z.string(),
-  user: ZUserItem,
+  user: ZUserItem.optional().nullable(),
 });
 export type TagItem = z.infer<typeof ZTagItem>;
 

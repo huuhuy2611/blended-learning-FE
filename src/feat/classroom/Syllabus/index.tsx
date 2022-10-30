@@ -1,35 +1,156 @@
 import ArticleEditor from "@/common/components/article-editor";
-import { Box } from "@mui/material";
-import React, { useState } from "react";
+import { Box, Button, Typography, useTheme } from "@mui/material";
+import { useState } from "react";
 import { cloneDeep } from "lodash";
-import { convert } from "html-to-text";
+import { useAddSyllabusTags } from "@/common/hooks/use-tag";
+import { useRouter } from "next/router";
+import {
+  useClassroom,
+  useUpdateClassroom,
+} from "@/common/hooks/use-classrooms";
+import useLocalStorage from "@/common/hooks/use-local-storage";
+import { PrimaryButton } from "@/common/components/button";
+import ReactHtmlParser from "react-html-parser";
+import CancelPresentationTwoToneIcon from "@mui/icons-material/CancelPresentationTwoTone";
 
 const Syllabus = () => {
+  const theme = useTheme();
+  const router = useRouter();
+  const classroomId = router.query.id as string;
+  const [userRole, setUserRole] = useLocalStorage("userRole", "");
+
+  const [isEditing, setIsEditing] = useState(false);
   const [syllabusEditor, setSyllabusEditor] = useState("");
 
+  const { data: dataClassroom } = useClassroom({
+    classroomId,
+  });
+
+  const { mutateAsync: handleAddSyllabusTags } = useAddSyllabusTags({
+    config: {
+      onSuccess: (data) => {
+        console.log("handleAddSyllabusTags", data);
+      },
+    },
+  });
+
+  const { mutateAsync: handleUpdateClassroom } = useUpdateClassroom();
+
   const handleSyllabus = () => {
+    if (!classroomId) return;
+
     const _syllabus = cloneDeep(syllabusEditor)
       .replace(/\n/g, "")
-      .replace(/<li>/g, '<li>"')
-      .replace(/<\/li>/g, '"</li>');
+      .replace(/<ul>/g, "")
+      .replace(/<\/ul>/g, "")
+      .replace(/<li>/g, "")
+      .replace(/<\/li>/g, ",");
 
-    const convertToNestedObj = _syllabus
-      .replace(/<ul>/g, "{list: [")
-      .replace(/<\/ul>/g, "]},")
-      .replace(/<li>/g, "{name:")
-      .replace(/<\/li>/g, "},");
+    const syllabusTags = _syllabus
+      .substring(0, _syllabus.length - 1)
+      .split(",");
 
-    console.log(1111111, convertToNestedObj);
-    // console.log(222222, addQuotationMarkSyllabus);
+    handleUpdateClassroom({
+      classroomId,
+      resources: syllabusEditor,
+    });
+    handleAddSyllabusTags({ tags: syllabusTags, classroomId });
   };
 
   return (
     <Box sx={{ width: "100%" }}>
-      <ArticleEditor
-        value={syllabusEditor}
-        onChange={(value) => setSyllabusEditor(value)}
-      />
-      <button onClick={handleSyllabus}>Button</button>
+      {isEditing ? (
+        <>
+          <ArticleEditor
+            value={syllabusEditor}
+            onChange={(value) => setSyllabusEditor(value)}
+          />
+          <Box className="div-center" sx={{ mt: 3 }}>
+            <Button
+              fullWidth
+              sx={{ mr: 2 }}
+              color="error"
+              onClick={() => {
+                setSyllabusEditor("");
+                setIsEditing(false);
+              }}
+            >
+              Cancel
+            </Button>
+            <PrimaryButton fullWidth onClick={handleSyllabus}>
+              Save
+            </PrimaryButton>
+          </Box>
+        </>
+      ) : (
+        <>
+          {dataClassroom?.resources ? (
+            <>
+              {userRole === "TEACHER" && (
+                <Box
+                  className="div-center"
+                  sx={{ justifyContent: "flex-end", mb: 1 }}
+                >
+                  <PrimaryButton
+                    onClick={() => {
+                      setIsEditing(true);
+                      setSyllabusEditor(dataClassroom?.resources || "");
+                    }}
+                  >
+                    Edit
+                  </PrimaryButton>
+                </Box>
+              )}
+              <Box
+                sx={{
+                  "& .public-DraftStyleDefault-listLTR": {
+                    listStyleType: "none !important",
+                  },
+                }}
+              >
+                <ArticleEditor
+                  value={dataClassroom?.resources}
+                  EditorProps={{ readOnly: true }}
+                />
+              </Box>
+            </>
+          ) : (
+            <>
+              {userRole === "TEACHER" && (
+                <Box
+                  className="div-center"
+                  sx={{ justifyContent: "flex-end", mb: 1 }}
+                >
+                  <PrimaryButton
+                    onClick={() => {
+                      setIsEditing(true);
+                    }}
+                  >
+                    Create
+                  </PrimaryButton>
+                </Box>
+              )}
+              <Box
+                className="div-center"
+                sx={{
+                  flexDirection: "column",
+                  width: "100%",
+                  height: "500px",
+                  background: theme.palette.grey[500_8],
+                  borderRadius: 1,
+                }}
+              >
+                <CancelPresentationTwoToneIcon
+                  sx={{ color: "grey.500", fontSize: 40 }}
+                />
+                <Typography variant="h4" sx={{ color: "grey.500" }}>
+                  No syllabus yet
+                </Typography>
+              </Box>
+            </>
+          )}
+        </>
+      )}
     </Box>
   );
 };
