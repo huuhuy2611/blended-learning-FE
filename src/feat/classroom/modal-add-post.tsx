@@ -16,7 +16,11 @@ import ArticleEditor from "@/common/components/article-editor";
 import { useRouter } from "next/router";
 import { PostItem } from "@/common/types/post.type";
 import Select from "react-select";
-import { useSyllabusTagsByClassroom, useTags } from "@/common/hooks/use-tag";
+import {
+  useAddTag,
+  useSyllabusTagsByClassroom,
+  useTags,
+} from "@/common/hooks/use-tag";
 import { TagItem } from "@/common/types/tag.type";
 import useDebounce, {
   SEARCH_DEBOUNCE_TIMEOUT,
@@ -42,6 +46,7 @@ const ModalAddPost = (props: IProps) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
+  const [selectedTags, setSelectedTags] = useState();
   const [queryTags, setQueryTags] = useState("");
   const debounceKeySearch = useDebounce(queryTags, SEARCH_DEBOUNCE_TIMEOUT);
 
@@ -50,6 +55,8 @@ const ModalAddPost = (props: IProps) => {
   const { data: dataTags, isFetching: fetchingGetTags } = useTags({
     keySearch: debounceKeySearch,
   });
+
+  const { mutateAsync: handleAddTag } = useAddTag();
 
   const { data: dataSyllabusTags } = useSyllabusTagsByClassroom({
     classroomId,
@@ -168,23 +175,18 @@ const ModalAddPost = (props: IProps) => {
             isMulti
             options={debounceKeySearch ? tagsOptions : syllabusTagsOptions}
             styles={customStyles}
+            // onChange={(selectedOptions) => setSelectedTags(selectedOptions)}
             onInputChange={(value) => {
               setQueryTags(value);
             }}
             noOptionsMessage={({ inputValue }) => {
-              // console.log("fetch", fetchingGetTags, inputValue);
-
               if (fetchingGetTags || inputValue !== debounceKeySearch)
                 return <>Loading...</>;
 
               return (
                 <Button
                   onClick={() => {
-                    console.log("new tag", inputValue);
-                    // setTest((prev) => [
-                    //   ...prev,
-                    //   { value: inputValue, label: inputValue },
-                    // ]);
+                    handleAddTag(inputValue);
                   }}
                 >
                   Add new tag
