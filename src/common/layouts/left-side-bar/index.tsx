@@ -24,6 +24,7 @@ import clsx from "clsx";
 import Image from "next/image";
 import { useIsoLayoutEffect } from "@/common/utils";
 import { PrimaryButton } from "@/common/components/button";
+import useLocalStorage from "@/common/hooks/use-local-storage";
 
 export type LeftSideBarCtx = {
   setMainBarEl: React.Dispatch<React.SetStateAction<React.ReactNode>>;
@@ -38,20 +39,20 @@ export interface LeftSideBarItemProps extends ButtonProps {
 
 const LEFT_SIDEBAR_TOP_ITEMS: LeftSideBarItemProps[] = [
   {
-    text: <>Home</>,
-    href: "/reservation",
+    text: <>Classrooms</>,
+    href: "/admin/classrooms",
     icon: <HomeTwoToneIcon fontSize="medium" />,
   },
   {
-    text: <>Customers</>,
-    href: "/customers",
+    text: <>Users</>,
+    href: "/admin/users",
     icon: <AccountBoxTwoToneIcon fontSize="medium" />,
   },
-  {
-    text: <>Transactions</>,
-    href: "/transactions",
-    icon: <PaidTwoToneIcon fontSize="medium" />,
-  },
+  // {
+  //   text: <>Transactions</>,
+  //   href: "/admin/transactions",
+  //   icon: <PaidTwoToneIcon fontSize="medium" />,
+  // },
 ];
 
 const LEFT_SIDEBAR_BOTTOM_ITEMS: LeftSideBarItemProps[] = [
@@ -156,15 +157,7 @@ export default function LeftSideBar({
               height={60}
             />
           </NextLink>
-          {/* <LeftSidebarNavigation /> */}
-          <PrimaryButton
-            onClick={() => {
-              localStorage.clear();
-              router.push("/login");
-            }}
-          >
-            Sign out
-          </PrimaryButton>
+          <LeftSidebarNavigation />
         </Stack>
         <Divider orientation="vertical" />
         <div
@@ -218,19 +211,33 @@ export default function LeftSideBar({
 }
 
 function LeftSidebarNavigation() {
+  const router = useRouter();
+
   const itemSpacing = 2.5;
+
+  const [userRole, setUserRole] = useLocalStorage("userRole", "");
 
   return (
     <Stack spacing={0} justifyContent="space-between" flex="1">
       <Stack spacing={itemSpacing}>
-        {LEFT_SIDEBAR_TOP_ITEMS.map((item) => (
-          <LeftSidebarItem {...item} key={item?.href} />
-        ))}
+        {userRole === "ADMIN" &&
+          LEFT_SIDEBAR_TOP_ITEMS.map((item) => (
+            <LeftSidebarItem {...item} key={item?.href} />
+          ))}
       </Stack>
       <Stack spacing={itemSpacing}>
-        {LEFT_SIDEBAR_BOTTOM_ITEMS.map((item) => (
+        {/* {LEFT_SIDEBAR_BOTTOM_ITEMS.map((item) => (
           <LeftSidebarItem {...item} key={item?.href} />
-        ))}
+        ))} */}
+        <PrimaryButton
+          sx={{ fontSize: 14, p: 0.5, fontWeight: "500" }}
+          onClick={() => {
+            localStorage.clear();
+            router.push("/login");
+          }}
+        >
+          Sign out
+        </PrimaryButton>
       </Stack>
     </Stack>
   );

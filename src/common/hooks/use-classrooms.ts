@@ -43,6 +43,33 @@ export function useClassroomsByUser(args?: {
   return getClassroomsByUserQuery;
 }
 
+export function useClassrooms(args?: {
+  classroomId: string;
+  config?: UseQueryOptions<ClassroomItem[], Error, ClassroomItem[], Array<any>>;
+}) {
+  const apiAuth = useApiAuth();
+
+  const fetchClassrooms = useMemo(
+    () =>
+      z
+        .function()
+        .args()
+        .implement(async () => {
+          const { data } = await apiAuth.get(`/classrooms`);
+          return data.map((item: ClassroomItem) => ZClassroomItem.parse(item));
+        }),
+    []
+  );
+
+  const getClassroomsQuery = useQuery(
+    ["get-classrooms-query"],
+    () => fetchClassrooms(),
+    args?.config
+  );
+
+  return getClassroomsQuery;
+}
+
 export function useClassroom(args?: {
   classroomId: string;
   config?: UseQueryOptions<ClassroomItem, Error, ClassroomItem, Array<any>>;
