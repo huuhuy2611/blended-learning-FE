@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ZTagItem } from "./tag.type";
 import { ZUserItem } from "./user.type";
 
 export const ZPostItem = z.object({
@@ -12,6 +13,7 @@ export const ZPostItem = z.object({
   numUpVote: z.number().optional(),
   numDownVote: z.number().optional(),
   user: ZUserItem,
+  tags: z.array(ZTagItem).optional().nullable(),
 });
 export type PostItem = z.infer<typeof ZPostItem>;
 
@@ -24,6 +26,7 @@ export const ZAddPostPayload = z.object({
   title: z.string(),
   content: z.string(),
   classroomId: z.string(),
+  tagIds: z.array(z.string()),
 });
 export type AddPostPayload = z.infer<typeof ZAddPostPayload>;
 

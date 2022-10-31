@@ -15,7 +15,7 @@ import { useEffect, useMemo, useState } from "react";
 import ArticleEditor from "@/common/components/article-editor";
 import { useRouter } from "next/router";
 import { PostItem } from "@/common/types/post.type";
-import Select from "react-select";
+import Select, { MultiValue } from "react-select";
 import {
   useAddTag,
   useSyllabusTagsByClassroom,
@@ -25,11 +25,20 @@ import { TagItem } from "@/common/types/tag.type";
 import useDebounce, {
   SEARCH_DEBOUNCE_TIMEOUT,
 } from "@/common/hooks/use-debounce";
+import { TagType } from "@/common/lib/enums";
+import { cloneDeep } from "lodash";
+
+export interface ITagOption {
+  type: TagType;
+  value: string;
+  label: string;
+}
 
 export interface ISubmitPost {
   title: string;
   content: string;
   classroomId: string;
+  tagIds: string[];
 }
 
 interface IProps {
@@ -46,17 +55,27 @@ const ModalAddPost = (props: IProps) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  const [selectedTags, setSelectedTags] = useState();
+  const [selectedTags, setSelectedTags] = useState<ITagOption[] | null>(null);
   const [queryTags, setQueryTags] = useState("");
   const debounceKeySearch = useDebounce(queryTags, SEARCH_DEBOUNCE_TIMEOUT);
 
   const [isLoading, setIsLoading] = useState(true);
 
-  const { data: dataTags, isFetching: fetchingGetTags } = useTags({
+  const {
+    data: dataTags,
+    isFetching: fetchingGetTags,
+    refetch: refetchGetTags,
+  } = useTags({
     keySearch: debounceKeySearch,
   });
 
-  const { mutateAsync: handleAddTag } = useAddTag();
+  const { mutateAsync: handleAddTag } = useAddTag({
+    config: {
+      onSuccess: () => {
+        refetchGetTags();
+      },
+    },
+  });
 
   const { data: dataSyllabusTags } = useSyllabusTagsByClassroom({
     classroomId,
@@ -81,6 +100,16 @@ const ModalAddPost = (props: IProps) => {
       type: item.type,
     }));
   }, [dataTags]);
+
+  const defaultOptions = useMemo(() => {
+    if (!data?.tags) return [];
+
+    return data.tags.map((item) => ({
+      value: item.id,
+      label: item.tag,
+      type: item.type,
+    }));
+  }, [data]);
 
   const customStyles = useMemo(
     () => ({
@@ -116,6 +145,7 @@ const ModalAddPost = (props: IProps) => {
         }
         return styles;
       },
+      menu: (provided: any) => ({ ...provided, zIndex: 9999 }),
     }),
     []
   );
@@ -173,9 +203,15 @@ const ModalAddPost = (props: IProps) => {
           <Select
             closeMenuOnSelect={false}
             isMulti
+            defaultValue={defaultOptions}
             options={debounceKeySearch ? tagsOptions : syllabusTagsOptions}
             styles={customStyles}
-            // onChange={(selectedOptions) => setSelectedTags(selectedOptions)}
+            onChange={(selectedOptions) => {
+              const _selectedOptions = cloneDeep(
+                selectedOptions
+              ) as ITagOption[];
+              setSelectedTags(_selectedOptions);
+            }}
             onInputChange={(value) => {
               setQueryTags(value);
             }}
@@ -210,7 +246,12 @@ const ModalAddPost = (props: IProps) => {
         <PrimaryButton
           onClick={(e) => {
             e.preventDefault();
-            onSubmit({ title, content, classroomId });
+            onSubmit({
+              title,
+              content,
+              classroomId,
+              tagIds: selectedTags?.map(({ value }) => value) || [],
+            });
           }}
           autoFocus
         >

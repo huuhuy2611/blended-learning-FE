@@ -1,11 +1,11 @@
-import { Box, Button, Divider, Typography } from "@mui/material";
+import { Box, Button, Chip, Divider, Typography } from "@mui/material";
 import dayjs from "dayjs";
 import LikeDislike from "@/common/components/like-dislike";
 import { PostItem } from "@/common/types/post.type";
 import ReactHtmlParser from "react-html-parser";
 import useLocalStorage from "@/common/hooks/use-local-storage";
 import ModalAddPost, { ISubmitPost } from "../modal-add-post";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   useDeletePost,
   useUpdatePost,
@@ -57,6 +57,28 @@ const PostDetails = (props: IProps) => {
       },
     },
   });
+
+  const renderTags = useMemo(() => {
+    if (!data.tags?.length) return null;
+
+    return data.tags.map((item) => (
+      <>
+        <Chip
+          label={item.tag}
+          color={item.type === "SYLLABUS" ? "info" : "default"}
+          sx={{
+            borderRadius: 0.5,
+            mr: 1,
+            height: "24px",
+            "& .MuiChip-label": {
+              px: 1,
+            },
+          }}
+          onClick={() => {}}
+        />
+      </>
+    ));
+  }, [data]);
 
   return (
     <>
@@ -124,6 +146,7 @@ const PostDetails = (props: IProps) => {
           <Typography variant="body1" sx={{ mb: 1 }}>
             {ReactHtmlParser(data.content)}
           </Typography>
+          {renderTags}
           <LikeDislike
             isLiked={data.isUpVote}
             isDisliked={data.isDownVote}

@@ -10,7 +10,6 @@ import {
 } from "@/common/hooks/use-classrooms";
 import useLocalStorage from "@/common/hooks/use-local-storage";
 import { PrimaryButton } from "@/common/components/button";
-import ReactHtmlParser from "react-html-parser";
 import CancelPresentationTwoToneIcon from "@mui/icons-material/CancelPresentationTwoTone";
 
 const Syllabus = () => {
@@ -22,14 +21,20 @@ const Syllabus = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [syllabusEditor, setSyllabusEditor] = useState("");
 
-  const { data: dataClassroom } = useClassroom({
+  const {
+    data: dataClassroom,
+    refetch: refetchDataClassroom,
+    isFetching: isFetchingDataClassroom,
+  } = useClassroom({
     classroomId,
   });
 
   const { mutateAsync: handleAddSyllabusTags } = useAddSyllabusTags({
     config: {
-      onSuccess: (data) => {
-        console.log("handleAddSyllabusTags", data);
+      onSuccess: () => {
+        setIsEditing(false);
+        setSyllabusEditor("");
+        refetchDataClassroom();
       },
     },
   });
@@ -108,10 +113,12 @@ const Syllabus = () => {
                   },
                 }}
               >
-                <ArticleEditor
-                  value={dataClassroom?.resources}
-                  EditorProps={{ readOnly: true }}
-                />
+                {!isFetchingDataClassroom && (
+                  <ArticleEditor
+                    value={dataClassroom?.resources}
+                    EditorProps={{ readOnly: true }}
+                  />
+                )}
               </Box>
             </>
           ) : (
