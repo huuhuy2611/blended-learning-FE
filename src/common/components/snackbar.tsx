@@ -1,4 +1,4 @@
-import { Snackbar, Alert, SnackbarOrigin } from "@mui/material";
+import { Snackbar, Alert } from "@mui/material";
 
 interface IProps {
   message: string;
@@ -11,7 +11,7 @@ const CustomSnackbar = (props: IProps) => {
     <Snackbar
       open
       autoHideDuration={2000}
-      anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      anchorOrigin={{ vertical: "top", horizontal: "right" }}
     >
       <Alert severity="success" sx={{ width: "100%" }}>
         {message}

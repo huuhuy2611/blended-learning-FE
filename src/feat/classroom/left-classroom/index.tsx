@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useState,
+  useMemo,
 } from "react";
 import {
   Box,
@@ -18,6 +19,7 @@ import {
   MenuItem,
   Select,
   Typography,
+  Chip,
 } from "@mui/material";
 import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
 import AddTwoToneIcon from "@mui/icons-material/AddTwoTone";
@@ -106,6 +108,32 @@ const LeftClass = (props: IProps) => {
     },
     [debounceKeySearch]
   );
+
+  const renderTags = (item: PostItem) => {
+    if (!item || !item?.tags) return null;
+
+    return item?.tags.map(({ tag, type }) => (
+      <>
+        <Chip
+          label={tag}
+          color={type === "SYLLABUS" ? "info" : "default"}
+          sx={{
+            borderRadius: 0.5,
+            mr: 1,
+            mb: 0.5,
+            fontSize: 12,
+            height: "24px",
+            // backgroundColor: type === "SYLLABUS" ? "#e5edfa" : "#e6e6e6",
+            // color: type === "SYLLABUS" ? "#0052cc" : "#333",
+            "& .MuiChip-label": {
+              px: 1,
+            },
+          }}
+          onClick={() => {}}
+        />
+      </>
+    ));
+  };
 
   useEffect(() => {
     if (!labelSnackbar) return;
@@ -205,6 +233,7 @@ const LeftClass = (props: IProps) => {
                         {item.title}
                         {item.createdAt !== item.createdAt && "(EDITED)"}
                       </Box>
+                      <Box sx={{ mt: 0.5 }}>{renderTags(item)}</Box>
                       <Box
                         className="div-center"
                         sx={{ justifyContent: "space-between" }}
