@@ -11,6 +11,8 @@ import {
 import useLocalStorage from "@/common/hooks/use-local-storage";
 import { PrimaryButton } from "@/common/components/button";
 import CancelPresentationTwoToneIcon from "@mui/icons-material/CancelPresentationTwoTone";
+import CustomSnackbar from "@/common/components/snackbar";
+import { useLabelSnackbar } from "@/common/hooks/use-snackbar";
 
 const Syllabus = () => {
   const theme = useTheme();
@@ -20,6 +22,7 @@ const Syllabus = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [syllabusEditor, setSyllabusEditor] = useState("");
+  const [labelSnackbar, setLabelSnackbar] = useLabelSnackbar();
 
   const {
     data: dataClassroom,
@@ -34,6 +37,7 @@ const Syllabus = () => {
       onSuccess: () => {
         setIsEditing(false);
         setSyllabusEditor("");
+        setLabelSnackbar("Update syllabus successful!");
         refetchDataClassroom();
       },
     },
@@ -64,6 +68,8 @@ const Syllabus = () => {
 
   return (
     <Box sx={{ width: "100%" }}>
+      {labelSnackbar && <CustomSnackbar message={labelSnackbar} />}
+
       {isEditing ? (
         <>
           <ArticleEditor
