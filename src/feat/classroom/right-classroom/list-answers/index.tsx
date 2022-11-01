@@ -1,19 +1,13 @@
 import { CommentItem } from "@/common/types/comment.type";
-import {
-  Box,
-  Divider,
-  MenuItem,
-  Select,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Box, Divider, MenuItem, Select, Typography } from "@mui/material";
 import ArticleEditor from "@/common/components/article-editor";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { PrimaryButton } from "@/common/components/button";
 import { useAddComment, useAnswersByPost } from "@/common/hooks/use-comment";
 import CustomSnackbar from "@/common/components/snackbar";
 import AnswerItem from "./answer-item";
 import { OrderApi, ORDER_ITEM, ORDER_LABEL } from "@/common/types/order.type";
+import { useLabelSnackbar } from "@/common/hooks/use-snackbar";
 
 interface IProps {
   postId: string;
@@ -26,7 +20,7 @@ const ListAnswers = (props: IProps) => {
 
   const [orderComments, setOrderComments] = useState<OrderApi>("DESC");
   const [inputAnswer, setInputAnswer] = useState<string | null>(null);
-  const [labelSnackbar, setLabelSnackbar] = useState("");
+  const [labelSnackbar, setLabelSnackbar] = useLabelSnackbar();
 
   const { data: dataComments, refetch: refetchDataComments } = useAnswersByPost(
     {
@@ -43,17 +37,6 @@ const ListAnswers = (props: IProps) => {
       },
     },
   });
-
-  useEffect(() => {
-    if (!labelSnackbar) return;
-
-    const funcInterval = setInterval(() => {
-      setLabelSnackbar("");
-    }, 2000);
-    return () => {
-      clearInterval(funcInterval);
-    };
-  }, [labelSnackbar]);
 
   return (
     <Box>

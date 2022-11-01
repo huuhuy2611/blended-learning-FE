@@ -1,11 +1,4 @@
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useState,
-  useMemo,
-} from "react";
+import { Dispatch, SetStateAction, useCallback, useState } from "react";
 import {
   Box,
   List,
@@ -36,6 +29,8 @@ import ReactHtmlParser from "react-html-parser";
 import useDebounce, {
   SEARCH_DEBOUNCE_TIMEOUT,
 } from "@/common/hooks/use-debounce";
+import useLocalStorage from "@/common/hooks/use-local-storage";
+import { useLabelSnackbar } from "@/common/hooks/use-snackbar";
 
 interface IProps {
   data: PostItem[] | undefined;
@@ -61,10 +56,12 @@ const LeftClass = (props: IProps) => {
     setOrder,
   } = props;
 
+  const [userRole, setUserRole] = useLocalStorage("userRole", "");
+
   const debounceKeySearch = useDebounce(keySearch, SEARCH_DEBOUNCE_TIMEOUT);
 
   const [showModalAddPost, setShowModalAddPost] = useState(false);
-  const [labelSnackbar, setLabelSnackbar] = useState("");
+  const [labelSnackbar, setLabelSnackbar] = useLabelSnackbar();
 
   const { mutateAsync: handleAddPost } = useAddPost({
     config: {
@@ -134,17 +131,6 @@ const LeftClass = (props: IProps) => {
       </>
     ));
   };
-
-  useEffect(() => {
-    if (!labelSnackbar) return;
-
-    const funcInterval = setInterval(() => {
-      setLabelSnackbar("");
-    }, 2000);
-    return () => {
-      clearInterval(funcInterval);
-    };
-  }, [labelSnackbar]);
 
   return (
     <>
@@ -266,15 +252,17 @@ const LeftClass = (props: IProps) => {
             </Box>
           )}
         </Box>
-        <Box>
-          <PrimaryButton
-            fullWidth
-            size="large"
-            onClick={() => setShowModalAddPost(true)}
-          >
-            <AddTwoToneIcon /> Add new post
-          </PrimaryButton>
-        </Box>
+        {userRole === "STUDENT" && (
+          <Box>
+            <PrimaryButton
+              fullWidth
+              size="large"
+              onClick={() => setShowModalAddPost(true)}
+            >
+              <AddTwoToneIcon /> Add new post
+            </PrimaryButton>
+          </Box>
+        )}
       </Card>
     </>
   );

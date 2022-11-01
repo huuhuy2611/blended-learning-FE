@@ -12,6 +12,7 @@ import CustomSnackbar from "@/common/components/snackbar";
 import { OrderApi } from "@/common/types/order.type";
 import BasicTabs, { TabItem } from "@/common/components/tabs";
 import Syllabus from "./syllabus";
+import { useLabelSnackbar } from "@/common/hooks/use-snackbar";
 
 const TAB_TYPE = ["LIST_POSTS", "SYLLABUS"] as const;
 type TabType = typeof TAB_TYPE[number];
@@ -38,7 +39,7 @@ const Classroom = () => {
     order: orderPosts,
   });
 
-  const [labelSnackbar, setLabelSnackbar] = useState("");
+  const [labelSnackbar, setLabelSnackbar] = useLabelSnackbar();
   const [tabIndex, setTabIndex] = useState(0);
 
   const [postSelected, setPostSelected] = useState<PostItem | null>(null);
@@ -138,17 +139,6 @@ const Classroom = () => {
 
     setPostSelected(dataPosts[indexPost >= 0 ? indexPost : selectedPostIndex]);
   }, [dataPosts]);
-
-  useEffect(() => {
-    if (!labelSnackbar) return;
-
-    const funcInterval = setInterval(() => {
-      setLabelSnackbar("");
-    }, 2000);
-    return () => {
-      clearInterval(funcInterval);
-    };
-  }, [labelSnackbar]);
 
   return (
     <>

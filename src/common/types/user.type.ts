@@ -13,6 +13,6 @@ export const ZUserItem = z.object({
   email: z.string(),
   id: z.string(),
   role: z.enum(ROLE_TYPE),
-  profile: ZProfileUser,
+  profile: ZProfileUser.optional().nullable(),
 });
 export type UserItem = z.infer<typeof ZUserItem>;
