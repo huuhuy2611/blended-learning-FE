@@ -20,13 +20,17 @@ const AdminUsers = () => {
       </Box>
       <Box sx={{ pb: 2 }}>
         <CustomTable
-          columns={["ID", "Email", "Name", "Gender", "Role"]}
+          columns={[
+            { label: "ID", value: "id" },
+            { label: "Email", value: "email" },
+            { label: "Name", value: "name" },
+            { label: "Gender", value: "gender" },
+            { label: "Role", value: "role" },
+          ]}
           rows={dataUsers.map((user) => ({
-            id: user.id,
-            email: user.email,
+            ...user,
             name: user?.profile?.name || "",
             gender: user?.profile?.gender || "",
-            role: user.role,
           }))}
           onView={() => {}}
           onEdit={() => {}}

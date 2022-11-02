@@ -1,10 +1,10 @@
 import { Box, Button, Chip, Divider, Typography } from "@mui/material";
 import dayjs from "dayjs";
 import LikeDislike from "@/common/components/like-dislike";
-import { PostItem } from "@/common/types/post.type";
+import { AddPostPayload, PostItem } from "@/common/types/post.type";
 import ReactHtmlParser from "react-html-parser";
 import useLocalStorage from "@/common/hooks/use-local-storage";
-import ModalAddPost, { ISubmitPost } from "../modal-add-post";
+import ModalAddPost from "../modal-add-post";
 import { useState, useMemo } from "react";
 import {
   useDeletePost,
@@ -12,7 +12,6 @@ import {
   useVotePost,
 } from "@/common/hooks/use-post";
 import ModalConfirmation from "./modal-confirmation";
-import { useAnswersByPost } from "@/common/hooks/use-comment";
 import ListAnswers from "./list-answers";
 
 interface IProps {
@@ -86,7 +85,7 @@ const PostDetails = (props: IProps) => {
         <ModalAddPost
           data={data}
           onClose={() => setShowEditPost(false)}
-          onSubmit={(dataSubmit: ISubmitPost) => {
+          onSubmit={(dataSubmit: AddPostPayload) => {
             handleUpdatePost({ postId: data.id, ...dataSubmit });
           }}
         />

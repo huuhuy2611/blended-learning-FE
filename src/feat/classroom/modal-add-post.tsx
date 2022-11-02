@@ -14,8 +14,8 @@ import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
 import { useEffect, useMemo, useState } from "react";
 import ArticleEditor from "@/common/components/article-editor";
 import { useRouter } from "next/router";
-import { PostItem } from "@/common/types/post.type";
-import Select, { MultiValue } from "react-select";
+import { AddPostPayload, PostItem } from "@/common/types/post.type";
+import Select from "react-select";
 import {
   useAddTag,
   useSyllabusTagsByClassroom,
@@ -34,17 +34,10 @@ export interface ITagOption {
   label: string;
 }
 
-export interface ISubmitPost {
-  title: string;
-  content: string;
-  classroomId: string;
-  tagIds: string[];
-}
-
 interface IProps {
   data?: PostItem;
   onClose: () => void;
-  onSubmit: (dataSubmit: ISubmitPost) => void;
+  onSubmit: (dataSubmit: AddPostPayload) => void;
 }
 
 const ModalAddPost = (props: IProps) => {
@@ -177,7 +170,9 @@ const ModalAddPost = (props: IProps) => {
     >
       <DialogTitle id="alert-dialog-title">
         <Box className="div-center" sx={{ justifyContent: "space-between" }}>
-          <Typography variant="h4">Add new post</Typography>
+          <Typography variant="h4">
+            {data ? "Update post" : "Add new post"}
+          </Typography>
           <IconButton onClick={onClose}>
             <CloseTwoToneIcon />
           </IconButton>
