@@ -7,8 +7,10 @@ import {
 import { useMemo } from "react";
 import { z } from "zod";
 import {
+  AddClassroomPayload,
   ClassroomItem,
   UpdateClassroomPayload,
+  ZAddClassroomPayload,
   ZClassroomItem,
   ZUpdateClassroomPayload,
 } from "../types/classroom.type";
@@ -97,6 +99,34 @@ export function useClassroom(args?: {
   return getClassroomQuery;
 }
 
+export function useAddClassroom(args?: {
+  config?: UseMutationOptions<
+    ClassroomItem,
+    Error,
+    AddClassroomPayload,
+    Array<any>
+  >;
+}) {
+  const apiAuth = useApiAuth();
+
+  const addClassroomMutation = useMutation(
+    z
+      .function()
+      .args(ZAddClassroomPayload)
+      .implement(async (payload: AddClassroomPayload) => {
+        const { data } = await apiAuth
+          .post(`/classrooms`, payload)
+          .catch((err) => {
+            throw err;
+          });
+        return ZClassroomItem.parse(data);
+      }),
+    args?.config
+  );
+
+  return addClassroomMutation;
+}
+
 export function useUpdateClassroom(args?: {
   config?: UseMutationOptions<
     ClassroomItem,
@@ -122,4 +152,23 @@ export function useUpdateClassroom(args?: {
   );
 
   return updateClassroomMutation;
+}
+
+export function useDeleteClassroom(args?: {
+  config?: UseMutationOptions<boolean, Error, string, unknown>;
+}) {
+  const apiAuth = useApiAuth();
+
+  const deleteClassroomMutation = useMutation(
+    z
+      .function()
+      .args(z.string())
+      .implement(async (classroomId: string) => {
+        await apiAuth.delete(`/classrooms/${classroomId}`);
+        return true;
+      }),
+    args?.config
+  );
+
+  return deleteClassroomMutation;
 }

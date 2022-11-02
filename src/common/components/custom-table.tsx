@@ -35,8 +35,13 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
+export interface IColumn {
+  label: string;
+  value: string;
+}
+
 interface IProps {
-  columns: string[];
+  columns: IColumn[];
   rows: any;
   onView: (item: any) => void;
   onEdit: (item: any) => void;
@@ -52,7 +57,7 @@ const CustomTable = (props: IProps) => {
         <TableHead>
           <TableRow>
             {columns.map((item, index) => (
-              <StyledTableCell key={index}>{item}</StyledTableCell>
+              <StyledTableCell key={index}>{item.label}</StyledTableCell>
             ))}
             <StyledTableCell>Actions</StyledTableCell>
           </TableRow>
@@ -60,8 +65,8 @@ const CustomTable = (props: IProps) => {
         <TableBody>
           {rows.map((row: any, index: any) => (
             <StyledTableRow key={index}>
-              {Object.values(row).map((itemRow: any, itemIndex) => (
-                <StyledTableCell key={itemIndex}>{itemRow}</StyledTableCell>
+              {columns.map(({ value }, itemIndex) => (
+                <StyledTableCell key={itemIndex}>{row[value]}</StyledTableCell>
               ))}
 
               <StyledTableCell>
