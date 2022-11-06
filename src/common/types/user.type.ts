@@ -16,3 +16,16 @@ export const ZUserItem = z.object({
   profile: ZProfileUser.optional().nullable(),
 });
 export type UserItem = z.infer<typeof ZUserItem>;
+
+export const ZAddUserPayload = z.object({
+  email: z.string(),
+  name: z.string(),
+  gender: z.enum(GENDER_TYPE),
+  role: z.enum(ROLE_TYPE),
+});
+export type AddUserPayload = z.infer<typeof ZAddUserPayload>;
+
+export const ZUpdateUserPayload = ZAddUserPayload.extend({
+  userId: z.string(),
+});
+export type UpdateUserPayload = z.infer<typeof ZUpdateUserPayload>;
