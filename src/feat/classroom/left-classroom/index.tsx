@@ -17,8 +17,8 @@ import {
 import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
 import AddTwoToneIcon from "@mui/icons-material/AddTwoTone";
 import { PrimaryButton } from "@/common/components/button";
-import { PostItem } from "@/common/types/post.type";
-import ModalAddPost, { ISubmitPost } from "../modal-add-post";
+import { AddPostPayload, PostItem } from "@/common/types/post.type";
+import ModalAddPost from "../modal-add-post";
 import { useAddPost } from "@/common/hooks/use-post";
 import CustomSnackbar from "@/common/components/snackbar";
 import { OrderApi, ORDER_ITEM, ORDER_LABEL } from "@/common/types/order.type";
@@ -109,26 +109,25 @@ const LeftClass = (props: IProps) => {
   const renderTags = (item: PostItem) => {
     if (!item || !item?.tags) return null;
 
-    return item?.tags.map(({ tag, type }) => (
-      <>
-        <Chip
-          label={tag}
-          color={type === "SYLLABUS" ? "info" : "default"}
-          sx={{
-            borderRadius: 0.5,
-            mr: 1,
-            mb: 0.5,
-            fontSize: 12,
-            height: "24px",
-            // backgroundColor: type === "SYLLABUS" ? "#e5edfa" : "#e6e6e6",
-            // color: type === "SYLLABUS" ? "#0052cc" : "#333",
-            "& .MuiChip-label": {
-              px: 1,
-            },
-          }}
-          onClick={() => {}}
-        />
-      </>
+    return item?.tags.map(({ tag, type }, index) => (
+      <Chip
+        key={index}
+        label={tag}
+        color={type === "SYLLABUS" ? "info" : "default"}
+        sx={{
+          borderRadius: 0.5,
+          mr: 1,
+          mb: 0.5,
+          fontSize: 12,
+          height: "24px",
+          // backgroundColor: type === "SYLLABUS" ? "#e5edfa" : "#e6e6e6",
+          // color: type === "SYLLABUS" ? "#0052cc" : "#333",
+          "& .MuiChip-label": {
+            px: 1,
+          },
+        }}
+        onClick={() => {}}
+      />
     ));
   };
 
@@ -137,7 +136,7 @@ const LeftClass = (props: IProps) => {
       {showModalAddPost && (
         <ModalAddPost
           onClose={() => setShowModalAddPost(false)}
-          onSubmit={(dataSubmit: ISubmitPost) => handleAddPost(dataSubmit)}
+          onSubmit={(dataSubmit: AddPostPayload) => handleAddPost(dataSubmit)}
         />
       )}
       {labelSnackbar && <CustomSnackbar message={labelSnackbar} />}

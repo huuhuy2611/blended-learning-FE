@@ -42,6 +42,7 @@
     "sass": "^1.55.0",
     "simplebar-react": "^2.4.3",
     "stylis-plugin-rtl": "^2.1.1",
+    "validator": "^13.7.0",
     "zod": "^3.19.1"
   },
   "devDependencies": {
@@ -56,6 +57,7 @@
     "@types/react-draft-wysiwyg": "^1.13.4",
     "@types/react-html-parser": "^2.0.2",
     "@types/react-lazy-load-image-component": "^1.5.2",
+    "@types/validator": "^13.7.10",
     "eslint": "8.24.0",
     "eslint-config-next": "12.3.1",
     "typescript": "4.8.3"

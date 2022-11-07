@@ -1,7 +1,19 @@
-import { useQuery, UseQueryOptions } from "@tanstack/react-query";
+import {
+  useMutation,
+  UseMutationOptions,
+  useQuery,
+  UseQueryOptions,
+} from "@tanstack/react-query";
 import { useMemo } from "react";
 import { z } from "zod";
-import { UserItem, ZUserItem } from "../types/user.type";
+import {
+  AddUserPayload,
+  UpdateUserPayload,
+  UserItem,
+  ZAddUserPayload,
+  ZUpdateUserPayload,
+  ZUserItem,
+} from "../types/user.type";
 import useApiAuth from "./use-api";
 
 export function useUsers(args?: {
@@ -29,4 +41,66 @@ export function useUsers(args?: {
   );
 
   return getUsersQuery;
+}
+
+export function useAddUser(args?: {
+  config?: UseMutationOptions<UserItem, Error, AddUserPayload, Array<any>>;
+}) {
+  const apiAuth = useApiAuth();
+
+  const addUserMutation = useMutation(
+    z
+      .function()
+      .args(ZAddUserPayload)
+      .implement(async (payload: AddUserPayload) => {
+        const { data } = await apiAuth.post("/auth/register", payload);
+
+        return ZUserItem.parse(data);
+      }),
+    args?.config
+  );
+
+  return addUserMutation;
+}
+
+export function useUpdateUser(args?: {
+  config?: UseMutationOptions<UserItem, Error, UpdateUserPayload, Array<any>>;
+}) {
+  const apiAuth = useApiAuth();
+
+  const updateUserMutation = useMutation(
+    z
+      .function()
+      .args(ZUpdateUserPayload)
+      .implement(async (payload: UpdateUserPayload) => {
+        const { userId, ...rest } = payload;
+
+        const { data } = await apiAuth.put(`/users/${userId}`, rest);
+
+        return ZUserItem.parse(data);
+      }),
+    args?.config
+  );
+
+  return updateUserMutation;
+}
+
+export function useDeleteUser(args?: {
+  config?: UseMutationOptions<boolean, Error, string, Array<any>>;
+}) {
+  const apiAuth = useApiAuth();
+
+  const updateUserMutation = useMutation(
+    z
+      .function()
+      .args(z.string())
+      .implement(async (userId: string) => {
+        const { data } = await apiAuth.delete(`/users/${userId}`);
+
+        return true;
+      }),
+    args?.config
+  );
+
+  return updateUserMutation;
 }

@@ -60,22 +60,21 @@ const PostDetails = (props: IProps) => {
   const renderTags = useMemo(() => {
     if (!data.tags?.length) return null;
 
-    return data.tags.map((item) => (
-      <>
-        <Chip
-          label={item.tag}
-          color={item.type === "SYLLABUS" ? "info" : "default"}
-          sx={{
-            borderRadius: 0.5,
-            mr: 1,
-            height: "24px",
-            "& .MuiChip-label": {
-              px: 1,
-            },
-          }}
-          onClick={() => {}}
-        />
-      </>
+    return data.tags.map((item, index) => (
+      <Chip
+        key={index}
+        label={item.tag}
+        color={item.type === "SYLLABUS" ? "info" : "default"}
+        sx={{
+          borderRadius: 0.5,
+          mr: 1,
+          height: "24px",
+          "& .MuiChip-label": {
+            px: 1,
+          },
+        }}
+        onClick={() => {}}
+      />
     ));
   }, [data]);
 
