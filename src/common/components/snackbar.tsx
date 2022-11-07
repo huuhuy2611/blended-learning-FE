@@ -1,11 +1,12 @@
-import { Snackbar, Alert } from "@mui/material";
+import { Snackbar, Alert, AlertColor } from "@mui/material";
 
 interface IProps {
   message: string;
+  type?: AlertColor;
 }
 
 const CustomSnackbar = (props: IProps) => {
-  const { message } = props;
+  const { message, type } = props;
 
   return (
     <Snackbar
@@ -13,7 +14,7 @@ const CustomSnackbar = (props: IProps) => {
       autoHideDuration={2000}
       anchorOrigin={{ vertical: "top", horizontal: "right" }}
     >
-      <Alert severity="success" sx={{ width: "100%" }}>
+      <Alert severity={type || "success"} sx={{ width: "100%" }}>
         {message}
       </Alert>
     </Snackbar>

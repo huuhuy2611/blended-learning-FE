@@ -53,7 +53,7 @@ export function useAddUser(args?: {
       .function()
       .args(ZAddUserPayload)
       .implement(async (payload: AddUserPayload) => {
-        const { data } = await apiAuth.post("/users", { payload });
+        const { data } = await apiAuth.post("/auth/register", payload);
 
         return ZUserItem.parse(data);
       }),

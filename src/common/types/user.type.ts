@@ -20,12 +20,13 @@ export type UserItem = z.infer<typeof ZUserItem>;
 export const ZAddUserPayload = z.object({
   email: z.string(),
   name: z.string(),
+  password: z.string(),
   gender: z.enum(GENDER_TYPE),
   role: z.enum(ROLE_TYPE),
 });
 export type AddUserPayload = z.infer<typeof ZAddUserPayload>;
 
-export const ZUpdateUserPayload = ZAddUserPayload.extend({
+export const ZUpdateUserPayload = ZAddUserPayload.partial().extend({
   userId: z.string(),
 });
 export type UpdateUserPayload = z.infer<typeof ZUpdateUserPayload>;

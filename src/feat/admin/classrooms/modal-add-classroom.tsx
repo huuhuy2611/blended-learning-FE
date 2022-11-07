@@ -64,7 +64,7 @@ const ModalAddClassroom = (props: IProps) => {
         </Box>
         <Box sx={{ p: 1, mb: 1 }}>
           <Typography variant="body1" sx={{ mb: 1 }}>
-            Resouces
+            Resources
           </Typography>
           <ArticleEditor
             value={resources}
