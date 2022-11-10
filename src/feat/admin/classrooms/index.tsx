@@ -3,6 +3,7 @@ import {
   useAddClassroom,
   useClassrooms,
   useDeleteClassroom,
+  useUpdateClassroom,
 } from "@/common/hooks/use-classrooms";
 import { Card, Box, Typography } from "@mui/material";
 import CustomTable from "@/common/components/custom-table";
@@ -12,12 +13,16 @@ import CustomSnackbar from "@/common/components/snackbar";
 import { useLabelSnackbar } from "@/common/hooks/use-snackbar";
 import ModalConfirmation from "@/feat/classroom/right-classroom/modal-confirmation";
 import { ClassroomItem } from "@/common/types/classroom.type";
+import { useRouter } from "next/router";
 
 const AdminClassrooms = () => {
+  const router = useRouter();
+
   const { data: dataClassrooms, refetch: refetchDataClassrooms } =
     useClassrooms();
 
   const [showAddClassroom, setShowAddClassroom] = useState(false);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [selectedClassroom, setSelectedClassroom] =
     useState<ClassroomItem | null>(null);
   const [labelSnackbar, setLabelSnackbar] = useLabelSnackbar();
@@ -29,9 +34,15 @@ const AdminClassrooms = () => {
         setShowAddClassroom(false);
         setLabelSnackbar("Create classroom successful!");
       },
-      onError: (err) => {
-        console.log(111, err);
-        setLabelSnackbar("Error add classroom!");
+    },
+  });
+
+  const { mutateAsync: handleUpdateClassroom } = useUpdateClassroom({
+    config: {
+      onSuccess: () => {
+        refetchDataClassrooms();
+        setShowAddClassroom(false);
+        setLabelSnackbar("Update classroom successful!");
       },
     },
   });
@@ -53,13 +64,25 @@ const AdminClassrooms = () => {
       {labelSnackbar && <CustomSnackbar message={labelSnackbar} />}
       {showAddClassroom && (
         <ModalAddClassroom
-          onClose={() => setShowAddClassroom(false)}
+          data={selectedClassroom}
+          onClose={() => {
+            setShowAddClassroom(false);
+            setSelectedClassroom(null);
+          }}
           onSubmit={(payload) => {
+            if (selectedClassroom) {
+              handleUpdateClassroom({
+                ...payload,
+                classroomId: selectedClassroom.id,
+              });
+              return;
+            }
+
             handleAddClassroom(payload);
           }}
         />
       )}
-      {selectedClassroom && (
+      {showConfirmDelete && selectedClassroom && (
         <ModalConfirmation
           message="Are you sure delete this classroom?"
           onClose={() => setSelectedClassroom(null)}
@@ -90,10 +113,14 @@ const AdminClassrooms = () => {
           { label: "Status", value: "status" },
         ]}
         rows={dataClassrooms}
-        onView={(item) => console.log(1111, item)}
-        onEdit={() => {}}
+        onView={(item) => router.push(`/admin/classrooms/${item.id}`)}
+        onEdit={(classroom) => {
+          setSelectedClassroom(classroom);
+          setShowAddClassroom(true);
+        }}
         onDelete={(classroom) => {
           setSelectedClassroom(classroom);
+          setShowConfirmDelete(true);
         }}
       />
     </Card>

@@ -14,7 +14,7 @@ const Editor = dynamic<EditorProps>(
 );
 
 interface IProps {
-  value: string | null;
+  defaultValue?: string;
   onChange?: (value: string) => void;
   placeholder?: string;
   EditorProps?: EditorProps;
@@ -22,23 +22,23 @@ interface IProps {
 
 const ArticleEditor = (props: IProps) => {
   const theme = useTheme();
-  const { value, onChange, placeholder, EditorProps } = props;
+  const { defaultValue, onChange, placeholder, EditorProps } = props;
 
   const defaultEditorState = useMemo(() => {
     let initState = EditorState.createEmpty();
 
-    if (!value) {
+    if (!defaultValue) {
       return initState;
     }
 
-    const contentBlock = htmlToDraft(value);
+    const contentBlock = htmlToDraft(defaultValue);
     const contentState = ContentState.createFromBlockArray(
       contentBlock?.contentBlocks
     );
     initState = EditorState.createWithContent(contentState);
 
     return initState;
-  }, []);
+  }, [defaultValue]);
 
   const [editorState, setEditorState] = useState(defaultEditorState);
 
@@ -56,13 +56,6 @@ const ArticleEditor = (props: IProps) => {
     const isEmpty = isEmptyEditor();
     onChange?.(isEmpty ? "" : data);
   }, [editorState]);
-
-  useEffect(() => {
-    if (value === null) {
-      const emptyEditor = EditorState.createEmpty();
-      setEditorState(emptyEditor);
-    }
-  }, [value]);
 
   return (
     <Box

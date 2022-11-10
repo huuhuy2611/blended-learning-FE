@@ -28,9 +28,7 @@ const Syllabus = () => {
     data: dataClassroom,
     refetch: refetchDataClassroom,
     isFetching: isFetchingDataClassroom,
-  } = useClassroom({
-    classroomId,
-  });
+  } = useClassroom(classroomId);
 
   const { mutateAsync: handleAddSyllabusTags } = useAddSyllabusTags({
     config: {
@@ -73,7 +71,7 @@ const Syllabus = () => {
       {isEditing ? (
         <>
           <ArticleEditor
-            value={syllabusEditor}
+            defaultValue={dataClassroom?.resources || ""}
             onChange={(value) => setSyllabusEditor(value)}
           />
           <Box className="div-center" sx={{ mt: 3 }}>
@@ -121,7 +119,7 @@ const Syllabus = () => {
               >
                 {!isFetchingDataClassroom && (
                   <ArticleEditor
-                    value={dataClassroom?.resources}
+                    defaultValue={dataClassroom?.resources}
                     EditorProps={{ readOnly: true }}
                   />
                 )}

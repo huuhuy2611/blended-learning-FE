@@ -43,9 +43,9 @@ export interface IColumn {
 interface IProps {
   columns: IColumn[];
   rows: any;
-  onView: (item: any) => void;
-  onEdit: (item: any) => void;
-  onDelete: (item: any) => void;
+  onView?: (item: any) => void;
+  onEdit?: (item: any) => void;
+  onDelete?: (item: any) => void;
 }
 
 const CustomTable = (props: IProps) => {
@@ -59,7 +59,9 @@ const CustomTable = (props: IProps) => {
             {columns.map((item, index) => (
               <StyledTableCell key={index}>{item.label}</StyledTableCell>
             ))}
-            <StyledTableCell>Actions</StyledTableCell>
+            {(onView || onEdit || onDelete) && (
+              <StyledTableCell>Actions</StyledTableCell>
+            )}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -69,40 +71,48 @@ const CustomTable = (props: IProps) => {
                 <StyledTableCell key={itemIndex}>{row[value]}</StyledTableCell>
               ))}
 
-              <StyledTableCell>
-                <Box>
-                  <IconButton
-                    sx={{
-                      border: "1px solid #cbcfd4",
-                      borderRadius: 1,
-                      mr: 1,
-                    }}
-                    onClick={() => onView(row)}
-                  >
-                    <RemoveRedEyeTwoToneIcon />
-                  </IconButton>
-                  <IconButton
-                    sx={{
-                      border: "1px solid #cbcfd4",
-                      borderRadius: 1,
-                      mr: 1,
-                    }}
-                    onClick={() => onEdit(row)}
-                  >
-                    <EditTwoToneIcon />
-                  </IconButton>
-                  <IconButton
-                    sx={{
-                      border: "1px solid #cbcfd4",
-                      borderRadius: 1,
-                      mr: 1,
-                    }}
-                    onClick={() => onDelete(row)}
-                  >
-                    <DeleteTwoToneIcon />
-                  </IconButton>
-                </Box>
-              </StyledTableCell>
+              {(onView || onEdit || onDelete) && (
+                <StyledTableCell>
+                  <Box>
+                    {onView && (
+                      <IconButton
+                        sx={{
+                          border: "1px solid #cbcfd4",
+                          borderRadius: 1,
+                          mr: 1,
+                        }}
+                        onClick={() => onView(row)}
+                      >
+                        <RemoveRedEyeTwoToneIcon />
+                      </IconButton>
+                    )}
+                    {onEdit && (
+                      <IconButton
+                        sx={{
+                          border: "1px solid #cbcfd4",
+                          borderRadius: 1,
+                          mr: 1,
+                        }}
+                        onClick={() => onEdit(row)}
+                      >
+                        <EditTwoToneIcon />
+                      </IconButton>
+                    )}
+                    {onDelete && (
+                      <IconButton
+                        sx={{
+                          border: "1px solid #cbcfd4",
+                          borderRadius: 1,
+                          mr: 1,
+                        }}
+                        onClick={() => onDelete(row)}
+                      >
+                        <DeleteTwoToneIcon />
+                      </IconButton>
+                    )}
+                  </Box>
+                </StyledTableCell>
+              )}
             </StyledTableRow>
           ))}
         </TableBody>
