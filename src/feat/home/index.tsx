@@ -15,9 +15,7 @@ const Home = () => {
   const router = useRouter();
   const [userId] = useLocalStorage("userId", "");
 
-  const { data } = useClassroomsByUser({
-    userId,
-  });
+  const { data } = useClassroomsByUser(userId);
 
   return (
     <Box>

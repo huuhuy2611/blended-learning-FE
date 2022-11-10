@@ -3,13 +3,13 @@ import LeftSideBar from "@/common/layouts/left-side-bar";
 import AdminClassrooms from "@/feat/admin/classrooms";
 import React, { ReactElement } from "react";
 
-const ClassroomsPage = () => {
+const AdminClassroomsPage = () => {
   return <AdminClassrooms />;
 };
 
-export default ClassroomsPage;
+export default AdminClassroomsPage;
 
-ClassroomsPage.getLayout = (page: ReactElement) => (
+AdminClassroomsPage.getLayout = (page: ReactElement) => (
   <AuthGuard>
     <LeftSideBar>{page}</LeftSideBar>
   </AuthGuard>

@@ -1,7 +1,12 @@
 import { PrimaryButton } from "@/common/components/button";
 import { Card, Box, Typography } from "@mui/material";
 
-import { useAddUser, useDeleteUser, useUsers } from "@/common/hooks/use-user";
+import {
+  useAddUser,
+  useDeleteUser,
+  useUpdateUser,
+  useUsers,
+} from "@/common/hooks/use-user";
 import CustomTable from "@/common/components/custom-table";
 import { useState } from "react";
 import ModalAddUser from "./modal-add-user";
@@ -9,12 +14,15 @@ import { useLabelSnackbar } from "@/common/hooks/use-snackbar";
 import CustomSnackbar from "@/common/components/snackbar";
 import ModalConfirmation from "@/feat/classroom/right-classroom/modal-confirmation";
 import { UserItem } from "@/common/types/user.type";
+import { useRouter } from "next/router";
 
 const AdminUsers = () => {
+  const router = useRouter();
+
   const [labelSnackbar, setLabelSnackbar] = useLabelSnackbar();
   const [errorSnackbar, setErrorSnackbar] = useLabelSnackbar();
   const [showModalUser, setShowModalUser] = useState(false);
-
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserItem | null>(null);
 
   const { data: dataUsers, refetch: refetchDataUsers } = useUsers();
@@ -25,6 +33,16 @@ const AdminUsers = () => {
         refetchDataUsers();
         setShowModalUser(false);
         setLabelSnackbar("Add new user successful!");
+      },
+    },
+  });
+
+  const { mutateAsync: handleUpdateUser } = useUpdateUser({
+    config: {
+      onSuccess: () => {
+        refetchDataUsers();
+        setShowModalUser(false);
+        setLabelSnackbar("Update user successful!");
       },
     },
   });
@@ -47,9 +65,22 @@ const AdminUsers = () => {
       {errorSnackbar && <CustomSnackbar message={errorSnackbar} type="error" />}
       {showModalUser && (
         <ModalAddUser
-          onClose={() => setShowModalUser(false)}
+          data={selectedUser}
+          onClose={() => {
+            setSelectedUser(null);
+            setShowModalUser(false);
+          }}
           onSubmit={async (dataSubmit) => {
             try {
+              if (selectedUser) {
+                const { password, ...rest } = dataSubmit;
+                const _dataSubmit = dataSubmit.password ? dataSubmit : rest;
+                await handleUpdateUser({
+                  ..._dataSubmit,
+                  userId: selectedUser.id,
+                });
+                return;
+              }
               await handleAddUser(dataSubmit);
             } catch (err: any) {
               setErrorSnackbar(err.message);
@@ -57,7 +88,7 @@ const AdminUsers = () => {
           }}
         />
       )}
-      {selectedUser && (
+      {showConfirmDelete && selectedUser && (
         <ModalConfirmation
           message="Are you sure delete this user?"
           onClose={() => setSelectedUser(null)}
@@ -90,15 +121,17 @@ const AdminUsers = () => {
               { label: "Gender", value: "gender" },
               { label: "Role", value: "role" },
             ]}
-            rows={dataUsers.map((user) => ({
-              ...user,
-              name: user?.profile?.name || "",
-              gender: user?.profile?.gender || "",
-            }))}
-            onView={() => {}}
-            onEdit={() => {}}
-            onDelete={(item) => {
-              setSelectedUser(item);
+            rows={dataUsers}
+            onView={(user) => {
+              router.push(`/admin/users/${user.id}`);
+            }}
+            onEdit={(user) => {
+              setSelectedUser(user);
+              setShowModalUser(true);
+            }}
+            onDelete={(user) => {
+              setSelectedUser(user);
+              setShowConfirmDelete(true);
             }}
           />
         </Box>

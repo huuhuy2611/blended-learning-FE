@@ -3,13 +3,13 @@ import LeftSideBar from "@/common/layouts/left-side-bar";
 import AdminUsers from "@/feat/admin/users";
 import React, { ReactElement } from "react";
 
-const UsersPage = () => {
+const AdminUsersPage = () => {
   return <AdminUsers />;
 };
 
-export default UsersPage;
+export default AdminUsersPage;
 
-UsersPage.getLayout = (page: ReactElement) => (
+AdminUsersPage.getLayout = (page: ReactElement) => (
   <AuthGuard>
     <LeftSideBar>{page}</LeftSideBar>
   </AuthGuard>

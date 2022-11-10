@@ -13,8 +13,10 @@ import {
   FormLabel,
   Radio,
   RadioGroup,
+  Checkbox,
+  FormGroup,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
 import { AddUserPayload, UserItem } from "@/common/types/user.type";
 import { GenderType, RoleType } from "@/common/lib/enums";
@@ -23,7 +25,7 @@ import isEmail from "validator/lib/isEmail";
 interface IProps {
   onClose: () => void;
   onSubmit: (payload: AddUserPayload) => void;
-  data?: UserItem;
+  data?: UserItem | null;
 }
 
 const ModalAddUser = (props: IProps) => {
@@ -37,6 +39,22 @@ const ModalAddUser = (props: IProps) => {
     password: "12345678",
   });
   const [isValidEmail, setIsValidEmail] = useState(true);
+  const [checkboxResetPassword, setCheckboxResetPassword] = useState(false);
+
+  useEffect(() => {
+    if (!data) return;
+
+    const { role, email, name, gender } = data;
+
+    setDataUser((prev) => ({
+      ...prev,
+      role,
+      email,
+      name: name || "",
+      gender: gender || "MALE",
+      password: "",
+    }));
+  }, [data]);
 
   return (
     <Dialog
@@ -90,7 +108,7 @@ const ModalAddUser = (props: IProps) => {
                   gender: e.target.value as GenderType,
                 }))
               }
-              defaultValue={data?.profile?.gender || "MALE"}
+              defaultValue={data?.gender || "MALE"}
             >
               <FormControlLabel value="MALE" control={<Radio />} label="Male" />
               <FormControlLabel
@@ -159,9 +177,21 @@ const ModalAddUser = (props: IProps) => {
           </FormControl>
         </Box>
         <Box sx={{ px: 1 }}>
-          <Typography variant="body1" sx={{ mb: 1 }}>
-            *** Default password: "<strong>{dataUser.password}</strong>"
-          </Typography>
+          {data ? (
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={checkboxResetPassword}
+                  onChange={(e) => setCheckboxResetPassword(e.target.checked)}
+                />
+              }
+              label="Reset password to default (12345678)"
+            />
+          ) : (
+            <Typography variant="body1" sx={{ mb: 1 }}>
+              *** Default password: "<strong>{dataUser.password}</strong>"
+            </Typography>
+          )}
         </Box>
       </DialogContent>
       <DialogActions>
@@ -175,7 +205,10 @@ const ModalAddUser = (props: IProps) => {
               return;
             }
 
-            onSubmit(dataUser);
+            onSubmit({
+              ...dataUser,
+              password: data && !checkboxResetPassword ? "" : "12345678",
+            });
           }}
           autoFocus
         >
