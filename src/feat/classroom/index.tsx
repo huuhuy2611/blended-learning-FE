@@ -145,8 +145,8 @@ const Classroom = () => {
       {labelSnackbar && <CustomSnackbar message={labelSnackbar} />}
 
       <Card sx={{ height: "100%", p: 3 }}>
-        <Grid container spacing={1} sx={{ height: "100%" }}>
-          <Grid item xs={12} sx={{ height: "fit-content" }}>
+        <Grid container sx={{ height: "100%" }}>
+          <Grid item xs={12}>
             <Box sx={{ width: "100%" }}>
               <BasicTabs
                 tabs={tabItems}

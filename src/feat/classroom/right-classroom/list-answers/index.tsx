@@ -97,7 +97,7 @@ const ListAnswers = (props: IProps) => {
           Your Answer
         </Typography>
         <ArticleEditor
-          value={inputAnswer}
+          defaultValue={inputAnswer || ""}
           onChange={(value) => setInputAnswer(value)}
         />
         <PrimaryButton

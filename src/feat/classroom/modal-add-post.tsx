@@ -1,7 +1,6 @@
 import { PrimaryButton, SecondaryButton } from "@/common/components/button";
 import {
   Box,
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -9,6 +8,7 @@ import {
   IconButton,
   TextField,
   Typography,
+  useTheme,
 } from "@mui/material";
 import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
 import { useEffect, useMemo, useState } from "react";
@@ -16,15 +16,8 @@ import ArticleEditor from "@/common/components/article-editor";
 import { useRouter } from "next/router";
 import { AddPostPayload, PostItem } from "@/common/types/post.type";
 import Select from "react-select";
-import {
-  useAddTag,
-  useSyllabusTagsByClassroom,
-  useTags,
-} from "@/common/hooks/use-tag";
+import { useAddFreeTags, useTagsByClassroom } from "@/common/hooks/use-tag";
 import { TagItem } from "@/common/types/tag.type";
-import useDebounce, {
-  SEARCH_DEBOUNCE_TIMEOUT,
-} from "@/common/hooks/use-debounce";
 import { TagType } from "@/common/lib/enums";
 import { cloneDeep } from "lodash";
 
@@ -43,65 +36,99 @@ interface IProps {
 const ModalAddPost = (props: IProps) => {
   const router = useRouter();
   const classroomId = router.query.id as string;
+  const theme = useTheme();
   const { data, onClose, onSubmit } = props;
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  const [selectedTags, setSelectedTags] = useState<ITagOption[] | null>(null);
-  const [queryTags, setQueryTags] = useState("");
-  const debounceKeySearch = useDebounce(queryTags, SEARCH_DEBOUNCE_TIMEOUT);
+  const [inputOtherTag, setInputOtherTag] = useState("");
+  const [otherTags, setOtherTags] = useState<string[]>([]);
+
+  const [selectedSyllabusTags, setSelectedSyllabusTags] = useState<
+    ITagOption[] | null
+  >(null);
+  const [selectedFreeTags, setSelectedFreeTags] = useState<ITagOption[] | null>(
+    null
+  );
 
   const [isLoading, setIsLoading] = useState(true);
 
-  const {
-    data: dataTags,
-    isFetching: fetchingGetTags,
-    refetch: refetchGetTags,
-  } = useTags({
-    keySearch: debounceKeySearch,
-  });
+  const { data: dataTags } = useTagsByClassroom(classroomId);
 
-  const { mutateAsync: handleAddTag } = useAddTag({
+  const { mutateAsync: handleAddFreeTags } = useAddFreeTags({
     config: {
-      onSuccess: () => {
-        refetchGetTags();
+      onSuccess: (data) => {
+        const resIds = data.map(({ id }) => id);
+        const selectedTagIds = [
+          ...(selectedSyllabusTags || []),
+          ...(selectedFreeTags || []),
+        ]?.map(({ value }) => value);
+
+        onSubmit({
+          title,
+          content,
+          classroomId,
+          tagIds: [...resIds, ...selectedTagIds],
+        });
       },
     },
   });
 
-  const { data: dataSyllabusTags } = useSyllabusTagsByClassroom({
-    classroomId,
-  });
+  const freeTags = useMemo(() => {
+    if (!dataTags || !dataTags.length) return [];
 
-  const syllabusTagsOptions = useMemo(() => {
-    if (!dataSyllabusTags) return [];
-
-    return dataSyllabusTags.map((item: TagItem) => ({
-      value: item.id,
-      label: item.tag,
-      type: item.type,
-    }));
-  }, [dataSyllabusTags]);
-
-  const tagsOptions = useMemo(() => {
-    if (!dataTags) return [];
-
-    return dataTags.map((item: TagItem) => ({
-      value: item.id,
-      label: item.tag,
-      type: item.type,
-    }));
+    return dataTags.filter((item) => item.type === "FREE");
   }, [dataTags]);
 
-  const defaultOptions = useMemo(() => {
-    if (!data?.tags) return [];
+  const syllabusTags = useMemo(() => {
+    if (!dataTags || !dataTags.length) return [];
 
-    return data.tags.map((item) => ({
+    return dataTags.filter((item) => item.type === "SYLLABUS");
+  }, [dataTags]);
+
+  const syllabusTagsOptions = useMemo(() => {
+    if (!syllabusTags) return [];
+
+    return syllabusTags.map((item: TagItem) => ({
       value: item.id,
       label: item.tag,
       type: item.type,
     }));
+  }, [syllabusTags]);
+
+  const freeTagsOptions = useMemo(() => {
+    if (!freeTags) return [];
+
+    return freeTags.map((item: TagItem) => ({
+      value: item.id,
+      label: item.tag,
+      type: item.type,
+    }));
+  }, [freeTags]);
+
+  const defaultFreeOptions = useMemo(() => {
+    if (!data?.tags) return [];
+
+    return data.tags
+      .filter((item) => item.type === "FREE")
+      .map((item) => ({
+        value: item.id,
+        label: item.tag,
+        type: item.type,
+      }));
+  }, [data]);
+
+  const defaultSyllabusOptions = useMemo(() => {
+    if (!data?.tags) return [];
+
+    return data.tags
+      .filter((item) => item.type === "SYLLABUS")
+      .map((item) => ({
+        value: item.id,
+        label: item.tag,
+        type: item.type,
+      }));
   }, [data]);
 
   const customStyles = useMemo(
@@ -142,6 +169,27 @@ const ModalAddPost = (props: IProps) => {
     }),
     []
   );
+
+  const handleSubmit = async (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    if (otherTags.length) {
+      handleAddFreeTags({
+        classroomId,
+        tags: otherTags,
+      });
+      return;
+    }
+
+    onSubmit({
+      title,
+      content,
+      classroomId,
+      tagIds: [
+        ...(selectedSyllabusTags || []),
+        ...(selectedFreeTags || []),
+      ]?.map(({ value }) => value),
+    });
+  };
 
   useEffect(() => {
     if (!data) {
@@ -193,63 +241,116 @@ const ModalAddPost = (props: IProps) => {
         </Box>
         <Box sx={{ p: 1, mb: 1 }}>
           <Typography variant="body1" sx={{ mb: 1 }}>
-            Tags
+            Syllabus tags
           </Typography>
           <Select
             closeMenuOnSelect={false}
             isMulti
-            defaultValue={defaultOptions}
-            options={debounceKeySearch ? tagsOptions : syllabusTagsOptions}
+            defaultValue={defaultSyllabusOptions}
+            options={syllabusTagsOptions}
             styles={customStyles}
+            isSearchable={false}
             onChange={(selectedOptions) => {
               const _selectedOptions = cloneDeep(
                 selectedOptions
               ) as ITagOption[];
-              setSelectedTags(_selectedOptions);
-            }}
-            onInputChange={(value) => {
-              setQueryTags(value);
-            }}
-            noOptionsMessage={({ inputValue }) => {
-              if (fetchingGetTags || inputValue !== debounceKeySearch)
-                return <>Loading...</>;
-
-              return (
-                <Button
-                  onClick={() => {
-                    handleAddTag(inputValue);
-                  }}
-                >
-                  Add new tag
-                </Button>
-              );
+              setSelectedSyllabusTags(_selectedOptions);
             }}
           />
         </Box>
+
+        <Box sx={{ p: 1, mb: 1 }}>
+          <Typography variant="body1" sx={{ mb: 1 }}>
+            Free tags
+          </Typography>
+          <Select
+            closeMenuOnSelect={false}
+            isMulti
+            defaultValue={defaultFreeOptions}
+            options={freeTagsOptions}
+            styles={customStyles}
+            isSearchable={false}
+            onChange={(selectedOptions) => {
+              const _selectedOptions = cloneDeep(
+                selectedOptions
+              ) as ITagOption[];
+              setSelectedFreeTags(_selectedOptions);
+            }}
+          />
+        </Box>
+
+        <Box sx={{ p: 1, mb: 1 }}>
+          <Typography variant="body1" sx={{ mb: 1 }}>
+            Other free tags
+          </Typography>
+          <Box>
+            <TextField
+              value={inputOtherTag}
+              onChange={(e) => setInputOtherTag(e.target.value)}
+              sx={{
+                mr: 1,
+                "& .MuiInputBase-input.MuiOutlinedInput-input": {
+                  p: 1.2,
+                },
+              }}
+            />
+            <PrimaryButton
+              onClick={() => {
+                setOtherTags([...otherTags, inputOtherTag]);
+                setInputOtherTag("");
+              }}
+            >
+              Save
+            </PrimaryButton>
+          </Box>
+          {!!otherTags.length && (
+            <Box
+              sx={{ mt: 1, justifyContent: "flex-start" }}
+              className="div-center"
+            >
+              {otherTags.map((item) => (
+                <Box
+                  sx={{
+                    px: 1,
+                    py: 0.5,
+                    background: theme.palette.grey[500_56],
+                    borderRadius: 1,
+                    width: "fit-content",
+                    mr: 1,
+                  }}
+                  className="div-center"
+                >
+                  <Typography variant="body2" sx={{ mr: 0.5 }}>
+                    {item}
+                  </Typography>
+                  <CloseTwoToneIcon
+                    sx={{ cursor: "pointer" }}
+                    onClick={() => {
+                      const filterOtherTags = otherTags.filter(
+                        (tag) => tag !== item
+                      );
+                      setOtherTags(filterOtherTags);
+                    }}
+                  />
+                </Box>
+              ))}
+            </Box>
+          )}
+        </Box>
+
         <Box sx={{ p: 1, mb: 1 }}>
           <Typography variant="body1" sx={{ mb: 1 }}>
             Description
           </Typography>
           <ArticleEditor
-            value={content}
+            defaultValue={content}
             onChange={(value) => setContent(value)}
           />
         </Box>
       </DialogContent>
       <DialogActions>
         <SecondaryButton onClick={onClose}>Cancel</SecondaryButton>
-        <PrimaryButton
-          onClick={(e) => {
-            e.preventDefault();
-            onSubmit({
-              title,
-              content,
-              classroomId,
-              tagIds: selectedTags?.map(({ value }) => value) || [],
-            });
-          }}
-          autoFocus
-        >
+        <PrimaryButton onClick={handleSubmit} autoFocus>
           {data ? "Save change" : "Create"}
         </PrimaryButton>
       </DialogActions>
