@@ -1,4 +1,10 @@
-import { Dispatch, SetStateAction, useCallback, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useState,
+  useMemo,
+} from "react";
 import {
   Box,
   List,
@@ -10,15 +16,16 @@ import {
   useTheme,
   CircularProgress,
   MenuItem,
-  Select,
+  Select as MuiSelect,
   Typography,
   Chip,
 } from "@mui/material";
+import Select from "react-select";
 import SearchTwoToneIcon from "@mui/icons-material/SearchTwoTone";
 import AddTwoToneIcon from "@mui/icons-material/AddTwoTone";
 import { PrimaryButton } from "@/common/components/button";
 import { AddPostPayload, PostItem } from "@/common/types/post.type";
-import ModalAddPost from "../modal-add-post";
+import ModalAddPost, { ITagOption } from "../modal-add-post";
 import { useAddPost } from "@/common/hooks/use-post";
 import CustomSnackbar from "@/common/components/snackbar";
 import { OrderApi, ORDER_ITEM, ORDER_LABEL } from "@/common/types/order.type";
@@ -31,6 +38,9 @@ import useDebounce, {
 } from "@/common/hooks/use-debounce";
 import useLocalStorage from "@/common/hooks/use-local-storage";
 import { useLabelSnackbar } from "@/common/hooks/use-snackbar";
+import { useTagsByClassroom } from "@/common/hooks/use-tag";
+import { cloneDeep, difference } from "lodash";
+import { useRouter } from "next/router";
 
 interface IProps {
   data: PostItem[] | undefined;
@@ -44,7 +54,11 @@ interface IProps {
 }
 
 const LeftClass = (props: IProps) => {
+  const router = useRouter();
+  const classroomId = router.query.id as string;
   const theme = useTheme();
+  const [userRole, setUserRole] = useLocalStorage("userRole", "");
+
   const {
     data,
     onClick,
@@ -56,13 +70,6 @@ const LeftClass = (props: IProps) => {
     setOrder,
   } = props;
 
-  const [userRole, setUserRole] = useLocalStorage("userRole", "");
-
-  const debounceKeySearch = useDebounce(keySearch, SEARCH_DEBOUNCE_TIMEOUT);
-
-  const [showModalAddPost, setShowModalAddPost] = useState(false);
-  const [labelSnackbar, setLabelSnackbar] = useLabelSnackbar();
-
   const { mutateAsync: handleAddPost } = useAddPost({
     config: {
       onSuccess: () => {
@@ -72,6 +79,72 @@ const LeftClass = (props: IProps) => {
       },
     },
   });
+
+  const { data: dataTags } = useTagsByClassroom(classroomId);
+
+  const debounceKeySearch = useDebounce(keySearch, SEARCH_DEBOUNCE_TIMEOUT);
+
+  const [showModalAddPost, setShowModalAddPost] = useState(false);
+  const [labelSnackbar, setLabelSnackbar] = useLabelSnackbar();
+  const [selectedTags, setSelectedTags] = useState<ITagOption[]>([]);
+
+  const tagOptions = useMemo(() => {
+    if (!dataTags || !dataTags.length) return [];
+
+    console.log(
+      33333,
+      dataTags.map((item) => ({
+        value: item.id,
+        label: item.tag,
+        type: item.type,
+      }))
+    );
+
+    return dataTags.map((item) => ({
+      value: item.id,
+      label: item.tag,
+      type: item.type,
+    }));
+  }, [dataTags]);
+
+  const customStyles = useMemo(
+    () => ({
+      multiValue: (styles: any, { data }: any) => {
+        if (data.type === "SYLLABUS") {
+          return {
+            ...styles,
+            backgroundColor: "rgba(0, 82, 204, 0.1)",
+          };
+        }
+        return styles;
+      },
+      multiValueLabel: (styles: any, { data }: any) => {
+        if (data.type === "SYLLABUS") {
+          return {
+            ...styles,
+            color: "rgb(0, 82, 204)",
+          };
+        }
+
+        return styles;
+      },
+      multiValueRemove: (styles: any, { data }: any) => {
+        if (data.type === "SYLLABUS") {
+          return {
+            ...styles,
+            color: "rgb(0, 82, 204)",
+            ":hover": {
+              backgroundColor: "rgb(0, 82, 204)",
+              color: "white",
+            },
+          };
+        }
+        return styles;
+      },
+      menu: (provided: any) => ({ ...provided, zIndex: 9999 }),
+    }),
+    []
+  );
 
   const renderSnippetsContent = useCallback(
     (item: PostItem) => {
@@ -131,6 +204,18 @@ const LeftClass = (props: IProps) => {
     ));
   };
 
+  const filteredData = useMemo(() => {
+    if (!selectedTags.length) return data;
+
+    const selectedTagIds = selectedTags.map(({ value }) => value);
+
+    return data?.filter(
+      (item) =>
+        difference(selectedTagIds, item?.tags?.map(({ id }) => id) || [])
+          .length === 0
+    );
+  }, [data, selectedTags]);
+
   return (
     <>
       {showModalAddPost && (
@@ -172,11 +257,31 @@ const LeftClass = (props: IProps) => {
               ),
             }}
           />
+          <Box className="div-center" sx={{ mb: 1 }}>
+            <Typography variant="body1" sx={{ width: "120px" }}>
+              Filter by tags:{" "}
+            </Typography>
+            <Box sx={{ width: "100%" }}>
+              <Select
+                closeMenuOnSelect={false}
+                isMulti
+                options={tagOptions}
+                styles={customStyles}
+                isSearchable={false}
+                onChange={(selectedOptions) => {
+                  const _selectedOptions = cloneDeep(
+                    selectedOptions
+                  ) as ITagOption[];
+                  setSelectedTags(_selectedOptions);
+                }}
+              />
+            </Box>
+          </Box>
           <Box className="div-center">
             <Typography variant="body1" sx={{ width: "80px" }}>
               Sort by:{" "}
             </Typography>
-            <Select
+            <MuiSelect
               labelId="demo-simple-select-label"
               id="demo-simple-select"
               value={order}
@@ -194,13 +299,13 @@ const LeftClass = (props: IProps) => {
                   {item}
                 </MenuItem>
               ))}
-            </Select>
+            </MuiSelect>
           </Box>
         </Box>
         <Box sx={{ height: "80%", overflow: "auto" }}>
           {data ? (
             <List>
-              {data.map((item, index) => (
+              {filteredData?.map((item, index) => (
                 <Box key={index}>
                   <ListItem
                     sx={{

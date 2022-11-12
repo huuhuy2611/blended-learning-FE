@@ -99,7 +99,7 @@ const AdminClassroomDetails = () => {
             <strong>Status:</strong> {dataClassroom?.status}
           </Typography>
           <Typography variant="body1">
-            <strong>Resources:</strong>
+            <strong>Syllabus:</strong>
           </Typography>
           <ArticleEditor
             defaultValue={dataClassroom?.resources || ""}

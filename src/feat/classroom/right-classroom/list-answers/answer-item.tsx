@@ -96,7 +96,7 @@ const AnswerItem = (props: IProps) => {
       {isEditing ? (
         <>
           <ArticleEditor
-            value={contentAnswer}
+            defaultValue={contentAnswer}
             onChange={(value) => setContentAnswer(value)}
           />
           <PrimaryButton

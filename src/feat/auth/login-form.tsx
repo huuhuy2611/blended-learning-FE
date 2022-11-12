@@ -12,11 +12,14 @@ import { PrimaryButton } from "@/common/components/button";
 import { useLogin, useVerifyToken } from "@/common/hooks/use-login";
 import useLocalStorage from "@/common/hooks/use-local-storage";
 import { useRouter } from "next/router";
+import CustomSnackbar from "@/common/components/snackbar";
+import { useLabelSnackbar } from "@/common/hooks/use-snackbar";
 
 const LoginForm = () => {
   const theme = useTheme();
   const router = useRouter();
   const nextPath = router.query.continue as string;
+  const [errorSnackbar, setErrorSnackbar] = useLabelSnackbar();
 
   const [token, setToken] = useLocalStorage("token", "");
   const [userId, setUserId] = useLocalStorage("userId", "");
@@ -56,6 +59,8 @@ const LoginForm = () => {
 
   return (
     <NoSsr>
+      {errorSnackbar && <CustomSnackbar message={errorSnackbar} type="error" />}
+
       <Box
         sx={{
           backgroundImage: `url('/images/background-login.png')`,
@@ -98,9 +103,13 @@ const LoginForm = () => {
           <Box sx={{ mb: 3, width: "402px" }}>
             <Box
               component="form"
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                handleLogin({ email, password });
+                try {
+                  await handleLogin({ email, password });
+                } catch {
+                  setErrorSnackbar("Email or password is incorrect!");
+                }
               }}
               sx={{ display: "block" }}
             >

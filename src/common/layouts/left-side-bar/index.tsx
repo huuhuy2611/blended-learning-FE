@@ -220,7 +220,7 @@ function LeftSidebarNavigation() {
   return (
     <Stack spacing={0} justifyContent="space-between" flex="1">
       <Stack spacing={itemSpacing}>
-        {userRole === "ADMIN" &&
+        {(userRole === "ADMIN" || userRole === "TEACHER") &&
           LEFT_SIDEBAR_TOP_ITEMS.map((item) => (
             <LeftSidebarItem {...item} key={item?.href} />
           ))}
