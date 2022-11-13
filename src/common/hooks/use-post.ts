@@ -22,40 +22,30 @@ import {
 } from "../types/post.type";
 import useApiAuth from "./use-api";
 
-export function usePostsByClassroom(args?: {
+export function usePostsByClassroom(args: {
   classroomId: string;
   keySearch?: string;
   order?: OrderApi;
   config?: UseQueryOptions<PostItem[], Error, PostItem[], Array<any>>;
 }) {
+  const { classroomId, keySearch, order, config } = args;
   const apiAuth = useApiAuth();
 
-  const fetchPosts = useMemo(
-    () =>
-      z
-        .function()
-        .args(z.string(), z.string(), z.enum(ORDER_API))
-        .implement(
-          async (classroomId: string, keySearch: string, order: OrderApi) => {
-            const { data } = await apiAuth.get(
-              `/posts/posts-by-classroom/${classroomId}?keySearch=${
-                keySearch || ""
-              }&order=${order}`
-            );
-            return data.map((item: unknown) => ZPostItem.parse(item));
-          }
-        ),
-    []
-  );
-
   const getPostsByClassroomQuery = useQuery(
-    ["get-posts-by-classroom", args?.classroomId, args?.keySearch, args?.order],
-    () =>
-      fetchPosts(
-        args?.classroomId || "",
-        args?.keySearch || "",
-        args?.order || "DESC"
-      )
+    ["get-posts-by-classroom", classroomId, keySearch, order],
+    async () => {
+      if (!classroomId) {
+        throw Error("Invalid classroomId");
+      }
+
+      const { data } = await apiAuth.get(
+        `/posts/posts-by-classroom/${classroomId}?keySearch=${
+          keySearch || ""
+        }&order=${order || "ASC"}`
+      );
+      return data.map((item: PostItem) => ZPostItem.parse(item));
+    },
+    { enabled: !!classroomId, ...config }
   );
 
   return getPostsByClassroomQuery;

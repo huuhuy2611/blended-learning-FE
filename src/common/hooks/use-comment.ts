@@ -21,8 +21,9 @@ import {
 import { OrderApi, ORDER_API } from "../types/order.type";
 import useApiAuth from "./use-api";
 
-export function useAnswersByPost(args?: {
-  postId: string;
+export function useComments(args?: {
+  postId?: string;
+  classroomId?: string;
   order?: OrderApi;
   config?: UseQueryOptions<CommentItem[], Error, CommentItem[], Array<any>>;
 }) {
@@ -32,18 +33,21 @@ export function useAnswersByPost(args?: {
     () =>
       z
         .function()
-        .args(z.string(), z.enum(ORDER_API))
-        .implement(async (postId: string, order: OrderApi) => {
-          const { data } = await apiAuth.get(
-            `/comments?postId=${postId}&order=${order}`
-          );
-          return data.map((item: unknown) => ZCommentItem.parse(item));
-        }),
+        .args(z.string(), z.string(), z.enum(ORDER_API))
+        .implement(
+          async (classroomId: string, postId: string, order: OrderApi) => {
+            const { data } = await apiAuth.get(
+              `/comments?postId=${postId}&classroomId=${classroomId}&order=${order}`
+            );
+            return data.map((item: CommentItem) => ZCommentItem.parse(item));
+          }
+        ),
     []
   );
 
   const getCommentsByPostQueryKeys = [
     "get-posts-by-classroom",
+    args?.classroomId,
     args?.postId,
     args?.order,
   ];
@@ -53,8 +57,15 @@ export function useAnswersByPost(args?: {
   //     qClient.setQueryData(getCommentsByPostQueryKeys, updater)
   // );
 
-  const getCommentsByPostQuery = useQuery(getCommentsByPostQueryKeys, () =>
-    fetchPosts(args?.postId || "", args?.order || "DESC")
+  const getCommentsByPostQuery = useQuery(
+    getCommentsByPostQueryKeys,
+    () =>
+      fetchPosts(
+        args?.classroomId || "",
+        args?.postId || "",
+        args?.order || "DESC"
+      ),
+    args?.config
   );
 
   return { ...getCommentsByPostQuery };

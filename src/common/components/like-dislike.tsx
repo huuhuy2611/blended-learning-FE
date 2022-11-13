@@ -1,5 +1,4 @@
 import { Box, IconButton, Typography } from "@mui/material";
-import React from "react";
 import ThumbUpTwoToneIcon from "@mui/icons-material/ThumbUpTwoTone";
 import ThumbDownOffAltTwoToneIcon from "@mui/icons-material/ThumbDownOffAltTwoTone";
 

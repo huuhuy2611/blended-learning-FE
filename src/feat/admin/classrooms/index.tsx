@@ -14,6 +14,7 @@ import { useLabelSnackbar } from "@/common/hooks/use-snackbar";
 import ModalConfirmation from "@/feat/classroom/right-classroom/modal-confirmation";
 import { ClassroomItem } from "@/common/types/classroom.type";
 import { useRouter } from "next/router";
+import { sortBy } from "lodash";
 
 const AdminClassrooms = () => {
   const router = useRouter();
@@ -112,7 +113,7 @@ const AdminClassrooms = () => {
           { label: "Title", value: "title" },
           { label: "Status", value: "status" },
         ]}
-        rows={dataClassrooms}
+        rows={sortBy(dataClassrooms, ["title"])}
         onView={(item) => router.push(`/admin/classrooms/${item.id}`)}
         onEdit={(classroom) => {
           setSelectedClassroom(classroom);

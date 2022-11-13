@@ -16,6 +16,7 @@ import HomeTwoToneIcon from "@mui/icons-material/HomeTwoTone";
 import PaidTwoToneIcon from "@mui/icons-material/PaidTwoTone";
 import SettingsTwoToneIcon from "@mui/icons-material/SettingsTwoTone";
 import SupportTwoToneIcon from "@mui/icons-material/SupportTwoTone";
+import AssessmentTwoToneIcon from "@mui/icons-material/AssessmentTwoTone";
 import { useRouter } from "next/router";
 import NextLink from "../../components/next-link";
 import React from "react";
@@ -48,11 +49,11 @@ const LEFT_SIDEBAR_TOP_ITEMS: LeftSideBarItemProps[] = [
     href: "/admin/users",
     icon: <AccountBoxTwoToneIcon fontSize="medium" />,
   },
-  // {
-  //   text: <>Transactions</>,
-  //   href: "/admin/transactions",
-  //   icon: <PaidTwoToneIcon fontSize="medium" />,
-  // },
+  {
+    text: <>Reports</>,
+    href: "/admin/reports",
+    icon: <AssessmentTwoToneIcon fontSize="medium" />,
+  },
 ];
 
 const LEFT_SIDEBAR_BOTTOM_ITEMS: LeftSideBarItemProps[] = [
@@ -199,7 +200,6 @@ export default function LeftSideBar({
             flex: 1;
             display: flex;
             flex-direction: column;
-            min-height: 100%;
             position: relative;
           `}
         >
