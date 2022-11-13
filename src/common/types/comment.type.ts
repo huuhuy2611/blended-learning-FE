@@ -12,12 +12,14 @@ export type CommentItemWithoutUser = z.infer<typeof ZCommentItemWithoutUser>;
 export const ZAddCommentPayload = z.object({
   content: z.string(),
   postId: z.string(),
+  classroomId: z.string(),
   parentId: z.string().optional(),
 });
 export type AddCommentPayload = z.infer<typeof ZAddCommentPayload>;
 
 export const ZUpdateCommentPayload = ZAddCommentPayload.omit({
   postId: true,
+  classroomId: true,
 }).extend({
   commentId: z.string(),
 });

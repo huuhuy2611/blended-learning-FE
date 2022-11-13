@@ -16,6 +16,7 @@ import { useLabelSnackbar } from "@/common/hooks/use-snackbar";
 import CustomSnackbar from "@/common/components/snackbar";
 import { UserItem } from "@/common/types/user.type";
 import ModalConfirmation from "@/feat/classroom/right-classroom/modal-confirmation";
+import { ChapterPayload } from "@/common/types/tag.type";
 
 const AdminClassroomDetails = () => {
   const theme = useTheme();
@@ -101,10 +102,28 @@ const AdminClassroomDetails = () => {
           <Typography variant="body1">
             <strong>Syllabus:</strong>
           </Typography>
-          <ArticleEditor
-            defaultValue={dataClassroom?.resources || ""}
-            EditorProps={{ readOnly: true }}
-          />
+          <Box
+            sx={{
+              py: 1,
+              px: 3,
+              border: `1px solid ${theme.palette.grey[50032]}`,
+              borderRadius: 1,
+              width: "100%",
+            }}
+          >
+            {JSON.parse(dataClassroom?.resources || "").map(
+              (chapter: ChapterPayload) => (
+                <Box key={chapter.id}>
+                  <Typography variant="subtitle1">{chapter.tag}</Typography>
+                  {chapter?.children?.map((item) => (
+                    <Box key={item.id} sx={{ ml: 2 }}>
+                      <Typography variant="body1">{item.tag}</Typography>
+                    </Box>
+                  ))}
+                </Box>
+              )
+            )}
+          </Box>
         </Box>
       </Box>
       <Box>
@@ -120,24 +139,26 @@ const AdminClassroomDetails = () => {
         </Box>
 
         {dataUsersByClassroom?.length ? (
-          <CustomTable
-            columns={[
-              { label: "ID", value: "id" },
-              { label: "Email", value: "email" },
-              { label: "Name", value: "name" },
-              { label: "Gender", value: "gender" },
-              { label: "Role", value: "role" },
-            ]}
-            rows={dataUsersByClassroom}
-            // onView={() => {}}
-            // onEdit={(user) => {
-            //   setSelectedUser(user);
-            //   setShowModalUser(true);
-            // }}
-            onDelete={(user) => {
-              setSelectedUser(user);
-            }}
-          />
+          <Box>
+            <CustomTable
+              columns={[
+                { label: "ID", value: "id" },
+                { label: "Email", value: "email" },
+                { label: "Name", value: "name" },
+                { label: "Gender", value: "gender" },
+                { label: "Role", value: "role" },
+              ]}
+              rows={dataUsersByClassroom}
+              // onView={() => {}}
+              // onEdit={(user) => {
+              //   setSelectedUser(user);
+              //   setShowModalUser(true);
+              // }}
+              onDelete={(user) => {
+                setSelectedUser(user);
+              }}
+            />
+          </Box>
         ) : (
           <Box
             className="div-center"

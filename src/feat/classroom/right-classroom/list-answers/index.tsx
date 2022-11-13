@@ -3,17 +3,20 @@ import { Box, Divider, MenuItem, Select, Typography } from "@mui/material";
 import ArticleEditor from "@/common/components/article-editor";
 import { useState } from "react";
 import { PrimaryButton } from "@/common/components/button";
-import { useAddComment, useAnswersByPost } from "@/common/hooks/use-comment";
+import { useAddComment, useComments } from "@/common/hooks/use-comment";
 import CustomSnackbar from "@/common/components/snackbar";
 import AnswerItem from "./answer-item";
 import { OrderApi, ORDER_ITEM, ORDER_LABEL } from "@/common/types/order.type";
 import { useLabelSnackbar } from "@/common/hooks/use-snackbar";
+import { useRouter } from "next/router";
 
 interface IProps {
   postId: string;
 }
 
 const ListAnswers = (props: IProps) => {
+  const router = useRouter();
+  const classroomId = router.query.id as string;
   const { postId } = props;
 
   if (!postId) return null;
@@ -22,12 +25,10 @@ const ListAnswers = (props: IProps) => {
   const [inputAnswer, setInputAnswer] = useState<string | null>(null);
   const [labelSnackbar, setLabelSnackbar] = useLabelSnackbar();
 
-  const { data: dataComments, refetch: refetchDataComments } = useAnswersByPost(
-    {
-      postId,
-      order: orderComments,
-    }
-  );
+  const { data: dataComments, refetch: refetchDataComments } = useComments({
+    postId,
+    order: orderComments,
+  });
 
   const { mutateAsync: handleAddComment } = useAddComment({
     config: {
@@ -97,17 +98,17 @@ const ListAnswers = (props: IProps) => {
           Your Answer
         </Typography>
         <ArticleEditor
-          defaultValue={inputAnswer || ""}
+          defaultValue={inputAnswer}
           onChange={(value) => setInputAnswer(value)}
         />
         <PrimaryButton
           sx={{ mt: 1 }}
           onClick={() => {
-            console.log("inputAnswer", inputAnswer);
             if (!inputAnswer) return;
 
             handleAddComment({
               postId,
+              classroomId,
               content: inputAnswer,
             });
           }}

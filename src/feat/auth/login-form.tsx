@@ -63,18 +63,18 @@ const LoginForm = () => {
 
       <Box
         sx={{
-          backgroundImage: `url('/images/background-login.png')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundColor: theme.palette.primary.main,
+          // backgroundImage: `url('/images/background-login.png')`,
+          // backgroundSize: "cover",
+          // backgroundPosition: "center",
+          // backgroundColor: theme.palette.primary.main,
           height: "100%",
+          display: "flex",
         }}
       >
         <Box
           sx={{
             height: "100%",
             width: "562px",
-            minWidth: "550px",
             background: "#fff",
             padding: "40px 80px",
             display: "flex",
@@ -164,6 +164,21 @@ const LoginForm = () => {
           <Typography variant="caption" sx={{ color: "grey.600" }}>
             Blended Learning App 1.0.0
           </Typography>
+        </Box>
+        <Box
+          className="div-center"
+          sx={{
+            width: "calc(100% - 562px)",
+            background:
+              "linear-gradient(180deg, rgba(4,0,80,1) 0%, rgba(61,0,153,1) 33%, rgba(79,22,208,1) 100%)",
+          }}
+        >
+          <Image
+            src="/images/Online-communication-skills.svg"
+            width={86 * 6}
+            height={68 * 6}
+            alt="illustration_login"
+          />
         </Box>
       </Box>
     </NoSsr>

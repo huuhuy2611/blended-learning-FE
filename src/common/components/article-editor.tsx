@@ -14,7 +14,7 @@ const Editor = dynamic<EditorProps>(
 );
 
 interface IProps {
-  defaultValue?: string;
+  defaultValue?: string | null;
   onChange?: (value: string) => void;
   placeholder?: string;
   EditorProps?: EditorProps;
@@ -56,6 +56,13 @@ const ArticleEditor = (props: IProps) => {
     const isEmpty = isEmptyEditor();
     onChange?.(isEmpty ? "" : data);
   }, [editorState]);
+
+  useEffect(() => {
+    if (defaultValue === null) {
+      const emptyEditor = EditorState.createEmpty();
+      setEditorState(emptyEditor);
+    }
+  }, [defaultValue]);
 
   return (
     <Box

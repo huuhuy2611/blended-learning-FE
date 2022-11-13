@@ -178,9 +178,9 @@ const AnswerItem = (props: IProps) => {
                 </Box>
               )}
             </Box>
-            <Button variant="text" sx={{ color: "rgba(0,0,0,0.18)", ml: 1 }}>
+            {/* <Button variant="text" sx={{ color: "rgba(0,0,0,0.18)", ml: 1 }}>
               Add comment...
-            </Button>
+            </Button> */}
           </Box>
         </>
       )}
