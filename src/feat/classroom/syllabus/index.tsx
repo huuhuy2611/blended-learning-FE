@@ -183,7 +183,127 @@ const Syllabus = () => {
         </Box>
       )}
 
-      {dataSyllabus?.length ? (
+      {isEditing ? (
+        <>
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="droppable">
+              {(provided) => (
+                <Box
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  sx={{ width: "100%" }}
+                >
+                  {dataSyllabus?.map((item, index) => (
+                    <Draggable
+                      key={item.id}
+                      draggableId={item.id}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <Box
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          onClick={() => {
+                            setSelectedChapter(item);
+                            setShowModalChapterDetails(true);
+                          }}
+                          className="div-center"
+                          sx={{ ml: 1, width: "100%" }}
+                        >
+                          <DragIndicatorIcon
+                            sx={{
+                              fontSize: 20,
+                              color: "grey.500",
+                              mr: 1,
+                            }}
+                          />
+                          <Box
+                            sx={{
+                              px: 2,
+                              py: 1,
+                              border: `1px solid ${theme.palette.grey[50032]}`,
+                              borderRadius: 1,
+                              my: 1,
+                              width: "100%",
+                            }}
+                          >
+                            <Typography variant="body1">{item.tag}</Typography>
+
+                            {item?.children?.map((subItem) => (
+                              <Box key={subItem.id} sx={{ ml: 3 }}>
+                                <Typography variant="body2">
+                                  {subItem.tag}
+                                </Typography>
+                              </Box>
+                            ))}
+                          </Box>
+                        </Box>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </Box>
+              )}
+            </Droppable>
+          </DragDropContext>
+          <Box className="div-center" sx={{ width: "100%", mt: 1 }}>
+            <PrimaryButton
+              onClick={() => {
+                setShowModalChapterDetails(true);
+              }}
+            >
+              <AddTwoToneIcon sx={{ fontSize: 16 }} />
+              Add New Chapter
+            </PrimaryButton>
+          </Box>
+        </>
+      ) : (
+        <>
+          {dataSyllabus?.length ? (
+            <Box
+              sx={{
+                py: 1,
+                px: 3,
+                border: `1px solid ${theme.palette.grey[50032]}`,
+                borderRadius: 1,
+                width: "100%",
+              }}
+            >
+              {dataSyllabus.map((chapter) => (
+                <Box key={chapter.id}>
+                  <Typography variant="subtitle1">{chapter.tag}</Typography>
+                  {chapter?.children?.map((item) => (
+                    <Box key={item.id} sx={{ ml: 2 }}>
+                      <Typography variant="body1">{item.tag}</Typography>
+                    </Box>
+                  ))}
+                </Box>
+              ))}
+            </Box>
+          ) : (
+            <Box
+              className="div-center"
+              sx={{
+                flexDirection: "column",
+                width: "100%",
+                height: "500px",
+                background: theme.palette.grey[500_8],
+                borderRadius: 1,
+              }}
+            >
+              <CancelPresentationTwoToneIcon
+                sx={{ color: "grey.500", fontSize: 40 }}
+              />
+              <Typography variant="h4" sx={{ color: "grey.500" }}>
+                No syllabus yet
+              </Typography>
+            </Box>
+          )}
+        </>
+      )}
+
+      {/* {dataSyllabus?.length ? (
         <>
           {isEditing ? (
             <>
@@ -305,7 +425,7 @@ const Syllabus = () => {
             </Typography>
           </Box>
         </>
-      )}
+      )} */}
     </>
   );
 };

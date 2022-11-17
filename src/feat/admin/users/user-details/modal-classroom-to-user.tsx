@@ -86,6 +86,7 @@ const ModalClassroomToUser = (props: IProps) => {
           Cancel
         </SecondaryButton>
         <PrimaryButton
+          disabled={!selectedClassroomIds.length}
           onClick={() => onSubmit(selectedClassroomIds as string[])}
         >
           Add Classrooms to User

@@ -33,8 +33,9 @@ const ModalAddClassroom = (props: IProps) => {
   const { onClose, onSubmit, data } = props;
 
   const [title, setTitle] = useState("");
-  const [resources, setResources] = useState<string>("");
+  // const [resources, setResources] = useState<string>("");
   const [status, setStatus] = useState<ClassroomStatus>("ACTIVE");
+  const [isInvalidTitle, setIsInvalidTitle] = useState(false);
 
   useEffect(() => {
     if (!data) return;
@@ -70,10 +71,16 @@ const ModalAddClassroom = (props: IProps) => {
           </Typography>
           <TextField
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => {
+              setTitle(e.target.value);
+              setIsInvalidTitle(false);
+            }}
             id="demo-helper-text-misaligned"
             label="Title"
             fullWidth
+            helperText={isInvalidTitle && "Please enter a title"}
+            // color={isInvalidTitle ? "error" : "primary"}
+            error={isInvalidTitle}
           />
         </Box>
         <Box sx={{ p: 1, mb: 1 }}>
@@ -105,7 +112,7 @@ const ModalAddClassroom = (props: IProps) => {
             </RadioGroup>
           </FormControl>
         </Box>
-        <Box sx={{ p: 1, mb: 1 }}>
+        {/* <Box sx={{ p: 1, mb: 1 }}>
           <Typography variant="body1" sx={{ mb: 1 }}>
             Resources
           </Typography>
@@ -113,16 +120,21 @@ const ModalAddClassroom = (props: IProps) => {
             defaultValue={data?.resources || ""}
             onChange={(value) => setResources(value)}
           />
-        </Box>
+        </Box> */}
       </DialogContent>
       <DialogActions>
         <SecondaryButton onClick={onClose}>Cancel</SecondaryButton>
         <PrimaryButton
           onClick={(e) => {
             e.preventDefault();
+            if (!title) {
+              setIsInvalidTitle(true);
+              return;
+            }
+
             onSubmit({
               title,
-              resources: resources || "",
+              resources: "",
               status,
             });
           }}

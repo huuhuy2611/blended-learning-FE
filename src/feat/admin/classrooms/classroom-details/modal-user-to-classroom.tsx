@@ -33,7 +33,9 @@ const ModalUserToClassroom = (props: IProps) => {
 
     if (!dataIgnore || !dataIgnore.length) return dataUsers;
 
-    const dataFilter = dataUsers.filter((item) => !some(dataIgnore, item));
+    const dataFilter = dataUsers.filter(
+      (item) => !some(dataIgnore, item) && item.role !== "ADMIN"
+    );
 
     return dataFilter;
   }, [dataUsers, dataIgnore]);
@@ -89,7 +91,12 @@ const ModalUserToClassroom = (props: IProps) => {
         <SecondaryButton onClick={onClose} sx={{ mr: 2 }}>
           Cancel
         </SecondaryButton>
-        <PrimaryButton onClick={() => onSubmit(selectedUserIds as string[])}>
+        <PrimaryButton
+          disabled={!selectedUserIds.length}
+          onClick={() => {
+            onSubmit(selectedUserIds as string[]);
+          }}
+        >
           Add Users to Classroom
         </PrimaryButton>
       </DialogActions>

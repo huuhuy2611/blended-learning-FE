@@ -46,10 +46,12 @@ const Classroom = () => {
   const [selectedPostIndex, setSelectedPostIndex] = useState(0);
 
   const handleShowPostDetails = (id: string) => {
+    if (!dataPosts) return;
+
     const tempPostSelected = dataPosts.find((item: PostItem) => item.id === id);
     const indexPost = dataPosts.findIndex((item: PostItem) => item.id === id);
     setSelectedPostIndex(indexPost);
-    setPostSelected(tempPostSelected);
+    setPostSelected(tempPostSelected || null);
   };
 
   const tabItems = useMemo<TabItemClassroom[]>(() => {
