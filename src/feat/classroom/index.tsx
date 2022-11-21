@@ -13,6 +13,8 @@ import { OrderApi } from "@/common/types/order.type";
 import BasicTabs, { TabItem } from "@/common/components/tabs";
 import Syllabus from "./syllabus";
 import { useLabelSnackbar } from "@/common/hooks/use-snackbar";
+import { useClassroom } from "@/common/hooks/use-classrooms";
+import { useTagsByClassroom } from "@/common/hooks/use-tag";
 
 const TAB_TYPE = ["LIST_POSTS", "SYLLABUS"] as const;
 type TabType = typeof TAB_TYPE[number];
@@ -29,11 +31,16 @@ const Classroom = () => {
     return <pre>Loading...</pre>;
   }
 
+  const { data: dataClassroom, refetch: refetchDataClassroom } =
+    useClassroom(classroomId);
+
+  const { data: dataTags } = useTagsByClassroom(classroomId);
+
   const [keySearch, setKeySearch] = useState("");
   const debounceKeySearch = useDebounce(keySearch, SEARCH_DEBOUNCE_TIMEOUT);
   const [orderPosts, setOrderPosts] = useState<OrderApi>("DESC");
 
-  const { data: dataPosts, refetch } = usePostsByClassroom({
+  const { data: dataPosts, refetch: refetchDataPosts } = usePostsByClassroom({
     classroomId: classroomId,
     keySearch: debounceKeySearch,
     order: orderPosts,
@@ -95,9 +102,10 @@ const Classroom = () => {
                 onSearch={(value) => setKeySearch(value)}
                 data={dataPosts}
                 onClick={handleShowPostDetails}
-                refetchData={() => refetch()}
+                refetchData={() => refetchDataPosts()}
                 order={orderPosts}
                 setOrder={setOrderPosts}
+                dataTags={dataTags}
               />
             </Box>
           </Grid>
@@ -111,7 +119,7 @@ const Classroom = () => {
                     if (label) {
                       setLabelSnackbar(label);
                     }
-                    refetch();
+                    refetchDataPosts();
                   }}
                 />
               </Box>
@@ -122,7 +130,12 @@ const Classroom = () => {
     }
 
     if (typeCurrentTab === "SYLLABUS") {
-      return <Syllabus />;
+      return (
+        <Syllabus
+          dataClassroom={dataClassroom}
+          refetchData={refetchDataClassroom}
+        />
+      );
     }
 
     return null;

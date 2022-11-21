@@ -38,9 +38,9 @@ import useDebounce, {
 } from "@/common/hooks/use-debounce";
 import useLocalStorage from "@/common/hooks/use-local-storage";
 import { useLabelSnackbar } from "@/common/hooks/use-snackbar";
-import { useTagsByClassroom } from "@/common/hooks/use-tag";
 import { cloneDeep, difference } from "lodash";
 import { useRouter } from "next/router";
+import { TagItem } from "@/common/types/tag.type";
 
 interface IProps {
   data: PostItem[] | undefined;
@@ -51,6 +51,7 @@ interface IProps {
   setOrder: Dispatch<SetStateAction<OrderApi>>;
   onClick: (id: string) => void;
   refetchData?: () => void;
+  dataTags: TagItem[] | undefined;
 }
 
 const LeftClass = (props: IProps) => {
@@ -68,6 +69,7 @@ const LeftClass = (props: IProps) => {
     selectedPostIndex,
     order,
     setOrder,
+    dataTags,
   } = props;
 
   const { mutateAsync: handleAddPost } = useAddPost({
@@ -80,8 +82,6 @@ const LeftClass = (props: IProps) => {
     },
   });
 
-  const { data: dataTags } = useTagsByClassroom(classroomId);
-
   const debounceKeySearch = useDebounce(keySearch, SEARCH_DEBOUNCE_TIMEOUT);
 
   const [showModalAddPost, setShowModalAddPost] = useState(false);
@@ -90,15 +90,6 @@ const LeftClass = (props: IProps) => {
 
   const tagOptions = useMemo(() => {
     if (!dataTags || !dataTags.length) return [];
-
-    console.log(
-      33333,
-      dataTags.map((item) => ({
-        value: item.id,
-        label: item.tag,
-        type: item.type,
-      }))
-    );
 
     return dataTags.map((item) => ({
       value: item.id,
@@ -263,7 +254,7 @@ const LeftClass = (props: IProps) => {
             </Typography>
             <Box sx={{ width: "100%" }}>
               <Select
-                closeMenuOnSelect={false}
+                closeMenuOnSelect
                 isMulti
                 options={tagOptions}
                 styles={customStyles}

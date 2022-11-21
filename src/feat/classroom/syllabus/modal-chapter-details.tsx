@@ -11,7 +11,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   DragDropContext,
   Draggable,
@@ -43,12 +43,6 @@ const ModalChapterDetails = (props: IProps) => {
   const [isEditingItem, setIsEditingItem] = useState(false);
   const [inputItem, setInputItem] = useState("");
 
-  useEffect(() => {
-    if (!dataChapter) return;
-
-    setData(dataChapter);
-  }, [dataChapter]);
-
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination || !data || !data.children) return;
 
@@ -65,6 +59,55 @@ const ModalChapterDetails = (props: IProps) => {
     setData(_data);
   };
 
+  const renderEditItem = useCallback(
+    ({
+      value,
+      onChange,
+      onSubmit,
+      onClose,
+    }: {
+      value: string;
+      onChange: (value: string) => void;
+      onSubmit: () => void;
+      onClose: () => void;
+    }) => {
+      return (
+        <>
+          <TextField
+            sx={{
+              width: "84%",
+              "& .MuiInputBase-input.MuiOutlinedInput-input": {
+                p: 1,
+              },
+            }}
+            value={value}
+            onChange={(e) => {
+              onChange(e.target.value);
+            }}
+          />
+          <IconButton onClick={onClose}>
+            <CloseTwoToneIcon />
+          </IconButton>
+          <IconButton
+            onClick={async () => {
+              await onSubmit();
+              onClose();
+            }}
+          >
+            <CheckTwoToneIcon />
+          </IconButton>
+        </>
+      );
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (!dataChapter) return;
+
+    setData(dataChapter);
+  }, [dataChapter]);
+
   return (
     <Dialog
       open
@@ -76,7 +119,9 @@ const ModalChapterDetails = (props: IProps) => {
     >
       <DialogTitle>
         <Box className="div-center" sx={{ justifyContent: "space-between" }}>
-          <Typography variant="h4">Update Chapter</Typography>
+          <Typography variant="h4">
+            {data ? "Update chapter" : "Create new chapter"}
+          </Typography>
           <IconButton onClick={onClose}>
             <CloseTwoToneIcon />
           </IconButton>
@@ -88,32 +133,30 @@ const ModalChapterDetails = (props: IProps) => {
           {data ? (
             <>
               <Box className="div-center" sx={{ justifyContent: "flex-start" }}>
-                {isEditingItem ? (
+                {isEditingItem && selectedItem?.id === data.id ? (
                   <>
-                    <TextField
-                      sx={{
-                        "& .MuiInputBase-input.MuiOutlinedInput-input": {
-                          p: 1,
-                        },
-                      }}
-                      value={inputItem}
-                      onChange={(e) => setInputItem(e.target.value)}
-                    />
-                    <IconButton
-                      onClick={() => {
+                    {renderEditItem({
+                      value: selectedItem?.tag || "",
+                      onChange: (value: string) => {
+                        setSelectedItem({
+                          id: selectedItem?.id || "",
+                          tag: value,
+                        });
+                      },
+                      onSubmit: () => {
                         const newData = {
                           id: data.id,
-                          tag: inputItem,
+                          tag: selectedItem?.tag,
                           children: data.children,
                         };
 
                         setData(newData);
+                      },
+                      onClose: () => {
                         setIsEditingItem(false);
-                        setInputItem("");
-                      }}
-                    >
-                      <CheckTwoToneIcon />
-                    </IconButton>
+                        setSelectedItem(null);
+                      },
+                    })}
                   </>
                 ) : (
                   <>
@@ -122,7 +165,10 @@ const ModalChapterDetails = (props: IProps) => {
                       sx={{ p: 1 }}
                       onClick={() => {
                         setIsEditingItem(true);
-                        setInputItem(data.tag);
+                        setSelectedItem({
+                          id: data.id,
+                          tag: data.tag,
+                        });
                       }}
                     >
                       <EditTwoToneIcon sx={{ fontSize: 16 }} />
@@ -160,24 +206,16 @@ const ModalChapterDetails = (props: IProps) => {
                                 {isEditingItem &&
                                 selectedItem?.id === item.id ? (
                                   <>
-                                    <TextField
-                                      sx={{
-                                        "& .MuiInputBase-input.MuiOutlinedInput-input":
-                                          {
-                                            p: 1,
-                                          },
-                                      }}
-                                      value={selectedItem?.tag || ""}
-                                      onChange={(e) =>
+                                    {renderEditItem({
+                                      value: selectedItem?.tag || "",
+                                      onChange: (value: string) => {
                                         setSelectedItem({
-                                          id: selectedItem?.id,
-                                          tag: e.target.value,
+                                          id: selectedItem?.id || "",
+                                          tag: value,
                                           parentId: selectedItem?.parentId,
-                                        })
-                                      }
-                                    />
-                                    <IconButton
-                                      onClick={() => {
+                                        });
+                                      },
+                                      onSubmit: () => {
                                         const newDataChildren =
                                           data?.children?.map((child) => {
                                             if (child.id === selectedItem?.id) {
@@ -193,13 +231,12 @@ const ModalChapterDetails = (props: IProps) => {
                                         };
 
                                         setData(newData);
-
+                                      },
+                                      onClose: () => {
                                         setIsEditingItem(false);
                                         setSelectedItem(null);
-                                      }}
-                                    >
-                                      <CheckTwoToneIcon />
-                                    </IconButton>
+                                      },
+                                    })}
                                   </>
                                 ) : (
                                   <>
@@ -228,17 +265,12 @@ const ModalChapterDetails = (props: IProps) => {
                 </DragDropContext>
                 {isAddingItem ? (
                   <>
-                    <TextField
-                      sx={{
-                        "& .MuiInputBase-input.MuiOutlinedInput-input": {
-                          p: 1,
-                        },
-                      }}
-                      value={inputItem}
-                      onChange={(e) => setInputItem(e.target.value)}
-                    />
-                    <IconButton
-                      onClick={() => {
+                    {renderEditItem({
+                      value: inputItem,
+                      onChange: (value: string) => {
+                        setInputItem(value);
+                      },
+                      onSubmit: () => {
                         const newChapterItem = {
                           id: uuidv4(),
                           tag: inputItem,
@@ -250,13 +282,12 @@ const ModalChapterDetails = (props: IProps) => {
                           children: [...(data.children || []), newChapterItem],
                         };
                         setData(newData);
-
+                      },
+                      onClose: () => {
                         setIsAddingItem(false);
                         setInputItem("");
-                      }}
-                    >
-                      <CheckTwoToneIcon />
-                    </IconButton>
+                      },
+                    })}
                   </>
                 ) : (
                   <Button
@@ -273,17 +304,12 @@ const ModalChapterDetails = (props: IProps) => {
             <>
               {isAddingItem ? (
                 <>
-                  <TextField
-                    sx={{
-                      "& .MuiInputBase-input.MuiOutlinedInput-input": {
-                        p: 1,
-                      },
-                    }}
-                    value={inputItem}
-                    onChange={(e) => setInputItem(e.target.value)}
-                  />
-                  <IconButton
-                    onClick={() => {
+                  {renderEditItem({
+                    value: inputItem,
+                    onChange: (value: string) => {
+                      setInputItem(value);
+                    },
+                    onSubmit: () => {
                       const newChapterItem = {
                         id: uuidv4(),
                         tag: inputItem,
@@ -293,13 +319,12 @@ const ModalChapterDetails = (props: IProps) => {
                         children: [],
                       };
                       setData(newData);
-
+                    },
+                    onClose: () => {
                       setIsAddingItem(false);
                       setInputItem("");
-                    }}
-                  >
-                    <CheckTwoToneIcon />
-                  </IconButton>
+                    },
+                  })}
                 </>
               ) : (
                 <Box

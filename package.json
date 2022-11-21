@@ -23,7 +23,6 @@
     "axios-better-stacktrace": "^2.1.3",
     "change-case": "^4.1.2",
     "date-fns": "^2.29.3",
-    "dayjs": "^1.11.5",
     "draft-js": "^0.11.7",
     "draftjs-to-html": "^0.9.1",
     "framer-motion": "^7.5.3",

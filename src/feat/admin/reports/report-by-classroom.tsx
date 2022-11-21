@@ -12,6 +12,7 @@ import { useUsersByClassroom } from "@/common/hooks/use-user";
 import { DataGrid } from "@mui/x-data-grid";
 import { CommentItem } from "@/common/types/comment.type";
 import { sortBy } from "lodash";
+import { useTagsByClassroom } from "@/common/hooks/use-tag";
 
 const AdminReportByClassroom = () => {
   const router = useRouter();
@@ -21,7 +22,39 @@ const AdminReportByClassroom = () => {
     classroomId,
     order: "HIGH_SCORES",
   });
+  const { data: dataTags } = useTagsByClassroom(classroomId);
   const { data: dataUsers } = useUsersByClassroom(classroomId);
+
+  const chapterTags = useMemo(
+    () =>
+      dataTags?.filter((item) => item.type === "SYLLABUS" && !item.parentId) ||
+      [],
+    [dataTags]
+  );
+
+  const dataPostsByChapter = useMemo(() => {
+    if (!chapterTags || !dataPosts) return [];
+
+    return chapterTags.map((tag) => {
+      const filterPostsByChapter = dataPosts
+        .filter(({ tags }) => {
+          const tagIds = tags?.map(({ id }) => id) || [];
+          const tagParentIds =
+            tags?.map(({ parentId }) => parentId && parentId) || [];
+
+          return [...tagIds, ...tagParentIds].includes(tag.id);
+        })
+        .map((item) => ({
+          ...item,
+          comments:
+            dataComments?.filter((comment) => comment.postId === item.id) || [],
+        }));
+
+      return { ...tag, posts: filterPostsByChapter };
+    });
+  }, [dataPosts, chapterTags, dataComments]);
+
+  console.log(11, dataPostsByChapter);
 
   const numInteractive = useMemo(() => {
     if (!dataPosts || !dataComments) return { like: 0, dislike: 0 };
@@ -44,7 +77,7 @@ const AdminReportByClassroom = () => {
     };
   }, [dataPosts, dataComments]);
 
-  const columns = [
+  const columnsDataByUser = [
     {
       field: "id",
       headerName: "ID",
@@ -72,7 +105,7 @@ const AdminReportByClassroom = () => {
     { field: "numDislike", headerName: "Num. Dislike", width: 150 },
   ];
 
-  const rows = useMemo(() => {
+  const rowsDataByUser = useMemo(() => {
     if (!dataPosts || !dataComments || !dataUsers) return [];
 
     return sortBy(
@@ -109,6 +142,51 @@ const AdminReportByClassroom = () => {
       [({ numLike }) => -numLike]
     );
   }, [dataPosts, dataComments, dataUsers]);
+
+  const columnsDataByChapter = [
+    {
+      field: "tag",
+      headerName: "Chapter name",
+      width: 500,
+      editable: false,
+      sortable: false,
+    },
+    { field: "numPost", headerName: "Num. Posts", width: 150 },
+    { field: "numComment", headerName: "Num. Comments", width: 150 },
+    { field: "numLike", headerName: "Num. Like", width: 150 },
+    { field: "numDislike", headerName: "Num. Dislike", width: 150 },
+  ];
+
+  const rowsDataByChapter = useMemo(() => {
+    if (!dataPostsByChapter) return [];
+
+    return dataPostsByChapter.map((item) => {
+      const { posts, ...rest } = item;
+
+      let numComment = 0;
+      let numLike = 0;
+      let numDislike = 0;
+
+      posts.forEach((post) => {
+        numComment += post.comments.length;
+        numLike += post.numUpVote || 0;
+        numDislike += post.numDownVote || 0;
+
+        post.comments.forEach((comment) => {
+          numLike += comment.numUpVote || 0;
+          numDislike += comment.numDownVote || 0;
+        });
+      });
+
+      return {
+        ...rest,
+        numPost: posts.length,
+        numComment,
+        numLike,
+        numDislike,
+      };
+    });
+  }, [dataPostsByChapter]);
 
   return (
     <Box sx={{ p: 2 }}>
@@ -209,6 +287,7 @@ const AdminReportByClassroom = () => {
             </Box>
           </Card>
         </Grid>
+
         <Grid item xs={12}>
           <Card sx={{ width: "100%", p: 3 }}>
             <Typography variant="h4" sx={{ mb: 2 }}>
@@ -216,8 +295,34 @@ const AdminReportByClassroom = () => {
             </Typography>
             <Box sx={{ width: "100%", height: "400px" }}>
               <DataGrid
-                rows={rows}
-                columns={columns}
+                rows={rowsDataByUser}
+                columns={columnsDataByUser}
+                pageSize={5}
+                rowsPerPageOptions={[5]}
+                hideFooterSelectedRowCount
+                // onSelectionModelChange={(value) => setSelectedUserIds(value)}
+              />
+            </Box>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12}>
+          <Card sx={{ width: "100%", p: 3 }}>
+            <Typography variant="h4" sx={{ mb: 2 }}>
+              Report by chapter
+            </Typography>
+            <Box sx={{ width: "100%", height: "400px" }}>
+              {/* {dataPostsByChapter.map((item) => (
+                <Box key={item.id}>
+                  <Typography variant="h4">{item.tag}</Typography>
+                  {item.posts?.length ? item.posts.map((post) => (
+                    <Box key={post.id}></Box>
+                  ))}
+                </Box>
+              ))} */}
+              <DataGrid
+                rows={rowsDataByChapter}
+                columns={columnsDataByChapter}
                 pageSize={5}
                 rowsPerPageOptions={[5]}
                 hideFooterSelectedRowCount

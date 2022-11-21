@@ -1,22 +1,11 @@
-import ArticleEditor from "@/common/components/article-editor";
-import {
-  Box,
-  Button,
-  Fab,
-  IconButton,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { Box, Button, Typography, useTheme } from "@mui/material";
 import { useEffect, useState } from "react";
-import { cloneDeep, range } from "lodash";
+import { cloneDeep } from "lodash";
 import { useAddSyllabusTags } from "@/common/hooks/use-tag";
 import { useRouter } from "next/router";
-import {
-  useClassroom,
-  useUpdateClassroom,
-} from "@/common/hooks/use-classrooms";
+import { useUpdateClassroom } from "@/common/hooks/use-classrooms";
 import useLocalStorage from "@/common/hooks/use-local-storage";
-import { PrimaryButton, SecondaryButton } from "@/common/components/button";
+import { PrimaryButton } from "@/common/components/button";
 import CancelPresentationTwoToneIcon from "@mui/icons-material/CancelPresentationTwoTone";
 import CustomSnackbar from "@/common/components/snackbar";
 import { useLabelSnackbar } from "@/common/hooks/use-snackbar";
@@ -25,27 +14,29 @@ import {
   DropResult,
   Droppable,
   Draggable,
-  ResponderProvided,
 } from "react-beautiful-dnd";
 import ModalChapterDetails from "./modal-chapter-details";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import AddTwoToneIcon from "@mui/icons-material/AddTwoTone";
 import { ChapterPayload } from "@/common/types/tag.type";
+import { ClassroomItem } from "@/common/types/classroom.type";
 
-const Syllabus = () => {
+interface IProps {
+  dataClassroom: ClassroomItem | undefined;
+  refetchData: () => void;
+}
+
+const Syllabus = (props: IProps) => {
   const theme = useTheme();
   const router = useRouter();
   const classroomId = router.query.id as string;
 
-  const [userRole, setUserRole] = useLocalStorage("userRole", "");
+  const { dataClassroom, refetchData } = props;
+
+  const [userRole] = useLocalStorage("userRole", "");
   const [labelSnackbar, setLabelSnackbar] = useLabelSnackbar();
   const [errorSnackbar, setErrorSnackbar] = useLabelSnackbar();
 
-  const {
-    data: dataClassroom,
-    refetch: refetchDataClassroom,
-    isFetching: isFetchingDataClassroom,
-  } = useClassroom(classroomId);
   const { mutateAsync: handleAddSyllabusTags } = useAddSyllabusTags({
     config: {
       onSuccess: () => {
@@ -56,7 +47,7 @@ const Syllabus = () => {
   const { mutateAsync: handleUpdateClassroom } = useUpdateClassroom({
     config: {
       onSuccess: () => {
-        refetchDataClassroom();
+        refetchData();
       },
     },
   });
