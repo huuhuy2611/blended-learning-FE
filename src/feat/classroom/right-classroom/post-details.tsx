@@ -1,5 +1,4 @@
 import { Box, Button, Chip, Divider, Typography } from "@mui/material";
-import dayjs from "dayjs";
 import LikeDislike from "@/common/components/like-dislike";
 import { AddPostPayload, PostItem } from "@/common/types/post.type";
 import ReactHtmlParser from "react-html-parser";
@@ -13,6 +12,7 @@ import {
 } from "@/common/hooks/use-post";
 import ModalConfirmation from "./modal-confirmation";
 import ListAnswers from "./list-answers";
+import { format } from "date-fns";
 
 interface IProps {
   data: PostItem;
@@ -25,8 +25,8 @@ const PostDetails = (props: IProps) => {
 
   if (!data) return null;
 
-  const createdAt = dayjs(data.createdAt).format("DD/MM/YYYY");
-  const updatedAt = dayjs(data.updatedAt).format("DD/MM/YYYY");
+  const createdAt = format(new Date(data.createdAt), "dd/MM/yyyy");
+  const updatedAt = format(new Date(data.updatedAt), "dd/MM/yyyy");
 
   const [showEditPost, setShowEditPost] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
@@ -141,7 +141,15 @@ const PostDetails = (props: IProps) => {
 
         <Divider sx={{ mb: 2 }} />
         <Box sx={{ mb: 1 }}>
-          <Typography variant="body1" sx={{ mb: 1 }}>
+          <Typography
+            variant="body1"
+            sx={{
+              mb: 1,
+              "& ul, & ol": {
+                ml: 3,
+              },
+            }}
+          >
             {ReactHtmlParser(data.content)}
           </Typography>
           {renderTags}

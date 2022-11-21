@@ -15,12 +15,13 @@ import CustomSnackbar from "@/common/components/snackbar";
 import { UserItem } from "@/common/types/user.type";
 import ModalConfirmation from "@/feat/classroom/right-classroom/modal-confirmation";
 import ModalClassroomToUser from "./modal-classroom-to-user";
+import useLocalStorage from "@/common/hooks/use-local-storage";
 
 const AdminUserDetails = () => {
   const theme = useTheme();
   const router = useRouter();
   const userId = router.query.id as string;
-
+  const [userRole] = useLocalStorage("userRole", "");
   const [labelSnackbar, setLabelSnackbar] = useLabelSnackbar();
 
   const { data: dataUser } = useUser(userId);

@@ -15,9 +15,11 @@ import CustomSnackbar from "@/common/components/snackbar";
 import ModalConfirmation from "@/feat/classroom/right-classroom/modal-confirmation";
 import { UserItem } from "@/common/types/user.type";
 import { useRouter } from "next/router";
+import useLocalStorage from "@/common/hooks/use-local-storage";
 
 const AdminUsers = () => {
   const router = useRouter();
+  const [userRole] = useLocalStorage("userRole", "");
 
   const [labelSnackbar, setLabelSnackbar] = useLabelSnackbar();
   const [errorSnackbar, setErrorSnackbar] = useLabelSnackbar();
@@ -108,10 +110,13 @@ const AdminUsers = () => {
           sx={{ justifyContent: "space-between", mb: 2 }}
         >
           <Typography variant="h3">List users</Typography>
-          <PrimaryButton onClick={() => setShowModalUser(true)}>
-            Add user
-          </PrimaryButton>
+          {userRole === "ADMIN" && (
+            <PrimaryButton onClick={() => setShowModalUser(true)}>
+              Add user
+            </PrimaryButton>
+          )}
         </Box>
+
         <Box sx={{ pb: 2 }}>
           <CustomTable
             columns={[
@@ -125,14 +130,22 @@ const AdminUsers = () => {
             onView={(user) => {
               router.push(`/admin/users/${user.id}`);
             }}
-            onEdit={(user) => {
-              setSelectedUser(user);
-              setShowModalUser(true);
-            }}
-            onDelete={(user) => {
-              setSelectedUser(user);
-              setShowConfirmDelete(true);
-            }}
+            onEdit={
+              userRole === "ADMIN"
+                ? (user) => {
+                    setSelectedUser(user);
+                    setShowModalUser(true);
+                  }
+                : undefined
+            }
+            onDelete={
+              userRole === "ADMIN"
+                ? (user) => {
+                    setSelectedUser(user);
+                    setShowConfirmDelete(true);
+                  }
+                : undefined
+            }
           />
         </Box>
       </Card>

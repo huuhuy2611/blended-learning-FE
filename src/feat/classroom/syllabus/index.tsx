@@ -1,22 +1,11 @@
-import ArticleEditor from "@/common/components/article-editor";
-import {
-  Box,
-  Button,
-  Fab,
-  IconButton,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { Box, Button, Typography, useTheme } from "@mui/material";
 import { useEffect, useState } from "react";
-import { cloneDeep, range } from "lodash";
+import { cloneDeep } from "lodash";
 import { useAddSyllabusTags } from "@/common/hooks/use-tag";
 import { useRouter } from "next/router";
-import {
-  useClassroom,
-  useUpdateClassroom,
-} from "@/common/hooks/use-classrooms";
+import { useUpdateClassroom } from "@/common/hooks/use-classrooms";
 import useLocalStorage from "@/common/hooks/use-local-storage";
-import { PrimaryButton, SecondaryButton } from "@/common/components/button";
+import { PrimaryButton } from "@/common/components/button";
 import CancelPresentationTwoToneIcon from "@mui/icons-material/CancelPresentationTwoTone";
 import CustomSnackbar from "@/common/components/snackbar";
 import { useLabelSnackbar } from "@/common/hooks/use-snackbar";
@@ -25,27 +14,29 @@ import {
   DropResult,
   Droppable,
   Draggable,
-  ResponderProvided,
 } from "react-beautiful-dnd";
 import ModalChapterDetails from "./modal-chapter-details";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import AddTwoToneIcon from "@mui/icons-material/AddTwoTone";
 import { ChapterPayload } from "@/common/types/tag.type";
+import { ClassroomItem } from "@/common/types/classroom.type";
 
-const Syllabus = () => {
+interface IProps {
+  dataClassroom: ClassroomItem | undefined;
+  refetchData: () => void;
+}
+
+const Syllabus = (props: IProps) => {
   const theme = useTheme();
   const router = useRouter();
   const classroomId = router.query.id as string;
 
-  const [userRole, setUserRole] = useLocalStorage("userRole", "");
+  const { dataClassroom, refetchData } = props;
+
+  const [userRole] = useLocalStorage("userRole", "");
   const [labelSnackbar, setLabelSnackbar] = useLabelSnackbar();
   const [errorSnackbar, setErrorSnackbar] = useLabelSnackbar();
 
-  const {
-    data: dataClassroom,
-    refetch: refetchDataClassroom,
-    isFetching: isFetchingDataClassroom,
-  } = useClassroom(classroomId);
   const { mutateAsync: handleAddSyllabusTags } = useAddSyllabusTags({
     config: {
       onSuccess: () => {
@@ -56,7 +47,7 @@ const Syllabus = () => {
   const { mutateAsync: handleUpdateClassroom } = useUpdateClassroom({
     config: {
       onSuccess: () => {
-        refetchDataClassroom();
+        refetchData();
       },
     },
   });
@@ -183,7 +174,127 @@ const Syllabus = () => {
         </Box>
       )}
 
-      {dataSyllabus?.length ? (
+      {isEditing ? (
+        <>
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="droppable">
+              {(provided) => (
+                <Box
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  sx={{ width: "100%" }}
+                >
+                  {dataSyllabus?.map((item, index) => (
+                    <Draggable
+                      key={item.id}
+                      draggableId={item.id}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <Box
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          onClick={() => {
+                            setSelectedChapter(item);
+                            setShowModalChapterDetails(true);
+                          }}
+                          className="div-center"
+                          sx={{ ml: 1, width: "100%" }}
+                        >
+                          <DragIndicatorIcon
+                            sx={{
+                              fontSize: 20,
+                              color: "grey.500",
+                              mr: 1,
+                            }}
+                          />
+                          <Box
+                            sx={{
+                              px: 2,
+                              py: 1,
+                              border: `1px solid ${theme.palette.grey[50032]}`,
+                              borderRadius: 1,
+                              my: 1,
+                              width: "100%",
+                            }}
+                          >
+                            <Typography variant="body1">{item.tag}</Typography>
+
+                            {item?.children?.map((subItem) => (
+                              <Box key={subItem.id} sx={{ ml: 3 }}>
+                                <Typography variant="body2">
+                                  {subItem.tag}
+                                </Typography>
+                              </Box>
+                            ))}
+                          </Box>
+                        </Box>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </Box>
+              )}
+            </Droppable>
+          </DragDropContext>
+          <Box className="div-center" sx={{ width: "100%", mt: 1 }}>
+            <PrimaryButton
+              onClick={() => {
+                setShowModalChapterDetails(true);
+              }}
+            >
+              <AddTwoToneIcon sx={{ fontSize: 16 }} />
+              Add New Chapter
+            </PrimaryButton>
+          </Box>
+        </>
+      ) : (
+        <>
+          {dataSyllabus?.length ? (
+            <Box
+              sx={{
+                py: 1,
+                px: 3,
+                border: `1px solid ${theme.palette.grey[50032]}`,
+                borderRadius: 1,
+                width: "100%",
+              }}
+            >
+              {dataSyllabus.map((chapter) => (
+                <Box key={chapter.id}>
+                  <Typography variant="subtitle1">{chapter.tag}</Typography>
+                  {chapter?.children?.map((item) => (
+                    <Box key={item.id} sx={{ ml: 2 }}>
+                      <Typography variant="body1">{item.tag}</Typography>
+                    </Box>
+                  ))}
+                </Box>
+              ))}
+            </Box>
+          ) : (
+            <Box
+              className="div-center"
+              sx={{
+                flexDirection: "column",
+                width: "100%",
+                height: "500px",
+                background: theme.palette.grey[500_8],
+                borderRadius: 1,
+              }}
+            >
+              <CancelPresentationTwoToneIcon
+                sx={{ color: "grey.500", fontSize: 40 }}
+              />
+              <Typography variant="h4" sx={{ color: "grey.500" }}>
+                No syllabus yet
+              </Typography>
+            </Box>
+          )}
+        </>
+      )}
+
+      {/* {dataSyllabus?.length ? (
         <>
           {isEditing ? (
             <>
@@ -305,7 +416,7 @@ const Syllabus = () => {
             </Typography>
           </Box>
         </>
-      )}
+      )} */}
     </>
   );
 };

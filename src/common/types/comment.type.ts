@@ -1,7 +1,9 @@
 import { z } from "zod";
 import { ZPostItem, ZVotePayload } from "./post.type";
 
-export const ZCommentItem = ZPostItem.omit({ title: true });
+export const ZCommentItem = ZPostItem.omit({ title: true }).extend({
+  postId: z.string(),
+});
 export type CommentItem = z.infer<typeof ZCommentItem>;
 
 export const ZCommentItemWithoutUser = ZCommentItem.omit({

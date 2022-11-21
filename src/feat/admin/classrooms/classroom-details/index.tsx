@@ -8,7 +8,7 @@ import {
 } from "@/common/hooks/use-user";
 import { Box, Card, Typography, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import CancelPresentationTwoToneIcon from "@mui/icons-material/CancelPresentationTwoTone";
 import { PrimaryButton } from "@/common/components/button";
 import ModalUserToClassroom from "./modal-user-to-classroom";
@@ -50,6 +50,11 @@ const AdminClassroomDetails = () => {
   const [showModalUserToClassroom, setShowModalUserToClassroom] =
     useState(false);
   const [selectedUser, setSelectedUser] = useState<UserItem | null>(null);
+
+  const resource = useMemo(
+    () => JSON.parse(dataClassroom?.resources || "[]"),
+    [dataClassroom?.resources]
+  );
 
   if (!dataClassroom) return null;
 
@@ -99,31 +104,34 @@ const AdminClassroomDetails = () => {
           <Typography variant="body1">
             <strong>Status:</strong> {dataClassroom?.status}
           </Typography>
-          <Typography variant="body1">
-            <strong>Syllabus:</strong>
-          </Typography>
-          <Box
-            sx={{
-              py: 1,
-              px: 3,
-              border: `1px solid ${theme.palette.grey[50032]}`,
-              borderRadius: 1,
-              width: "100%",
-            }}
-          >
-            {JSON.parse(dataClassroom?.resources || "").map(
-              (chapter: ChapterPayload) => (
-                <Box key={chapter.id}>
-                  <Typography variant="subtitle1">{chapter.tag}</Typography>
-                  {chapter?.children?.map((item) => (
-                    <Box key={item.id} sx={{ ml: 2 }}>
-                      <Typography variant="body1">{item.tag}</Typography>
-                    </Box>
-                  ))}
-                </Box>
-              )
-            )}
-          </Box>
+
+          {!!resource.length && (
+            <>
+              <Typography variant="body1">
+                <strong>Syllabus:</strong>
+              </Typography>
+              <Box
+                sx={{
+                  py: 1,
+                  px: 3,
+                  border: `1px solid ${theme.palette.grey[50032]}`,
+                  borderRadius: 1,
+                  width: "100%",
+                }}
+              >
+                {resource.map((chapter: ChapterPayload) => (
+                  <Box key={chapter.id}>
+                    <Typography variant="subtitle1">{chapter.tag}</Typography>
+                    {chapter?.children?.map((item) => (
+                      <Box key={item.id} sx={{ ml: 2 }}>
+                        <Typography variant="body1">{item.tag}</Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                ))}
+              </Box>
+            </>
+          )}
         </Box>
       </Box>
       <Box>

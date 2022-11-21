@@ -54,7 +54,7 @@ const AdminReports = () => {
                 <CardMedia
                   component="img"
                   height="140"
-                  image="/images/background-login.png"
+                  image="/images/634.jpg"
                   alt="green iguana"
                 />
                 <CardContent>

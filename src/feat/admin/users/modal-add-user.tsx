@@ -37,8 +37,30 @@ const ModalAddUser = (props: IProps) => {
     role: "STUDENT",
     password: "12345678",
   });
-  const [isValidEmail, setIsValidEmail] = useState(true);
+  const [isInvalid, setIsInvalid] = useState<{ email: boolean; name: boolean }>(
+    {
+      name: false,
+      email: false,
+    }
+  );
   const [checkboxResetPassword, setCheckboxResetPassword] = useState(false);
+
+  const checkValidDataSubmit = () => {
+    let isValid = true;
+
+    const validEmail = isEmail(dataUser.email);
+    if (!validEmail) {
+      setIsInvalid((prev) => ({ ...prev, email: true }));
+      isValid = false;
+    }
+
+    if (!dataUser.name) {
+      setIsInvalid((prev) => ({ ...prev, name: true }));
+      isValid = false;
+    }
+
+    return isValid;
+  };
 
   useEffect(() => {
     if (!data) return;
@@ -82,11 +104,14 @@ const ModalAddUser = (props: IProps) => {
           </Typography>
           <TextField
             value={dataUser.name}
-            onChange={(e) =>
-              setDataUser((prev) => ({ ...prev, name: e.target.value }))
-            }
+            onChange={(e) => {
+              setDataUser((prev) => ({ ...prev, name: e.target.value }));
+              setIsInvalid((prev) => ({ ...prev, name: false }));
+            }}
             label="Name"
             fullWidth
+            helperText={isInvalid.name && "Please enter a name"}
+            error={isInvalid.name}
           />
         </Box>
         <Box sx={{ p: 1, mb: 1 }}>
@@ -130,12 +155,16 @@ const ModalAddUser = (props: IProps) => {
             }}
             value={dataUser.email}
             onChange={(e) => {
-              setIsValidEmail(true);
+              setIsInvalid((prev) => ({ ...prev, email: false }));
               setDataUser((prev) => ({ ...prev, email: e.target.value }));
             }}
             label="Email"
             fullWidth
-            helperText={!isValidEmail && "Please enter a valid email"}
+            helperText={
+              isInvalid.email &&
+              `Please enter a ${dataUser.email ? "valid" : ""} email`
+            }
+            error={isInvalid.email}
           />
         </Box>
         <Box sx={{ p: 1, mb: 1 }}>
@@ -198,11 +227,9 @@ const ModalAddUser = (props: IProps) => {
         <PrimaryButton
           onClick={(e) => {
             e.preventDefault();
-            const validEmail = isEmail(dataUser.email);
-            if (!validEmail) {
-              setIsValidEmail(false);
-              return;
-            }
+            const isValid = checkValidDataSubmit();
+
+            if (!isValid) return;
 
             onSubmit({
               ...dataUser,
