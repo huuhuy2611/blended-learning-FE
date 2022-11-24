@@ -42,34 +42,6 @@ export function useTagsByClassroom(
   return getTagsQuery;
 }
 
-// export function useSyllabusTagsByClassroom(args?: {
-//   classroomId: string;
-//   config?: UseQueryOptions<TagItem[], Error, TagItem[], Array<any>>;
-// }) {
-//   const apiAuth = useApiAuth();
-
-//   const fetchSyllabusTagsByClassroom = useMemo(
-//     () =>
-//       z
-//         .function()
-//         .args(z.string())
-//         .implement(async (classroomId: string) => {
-//           const { data } = await apiAuth.get(`/tags/syllabus/${classroomId}`);
-
-//           return data.map((item: TagItem) => ZTagItem.parse(item));
-//         }),
-//     []
-//   );
-
-//   const getSyllabusTagsByClassroomQuery = useQuery(
-//     ["get-syllabus-tags-by-classroom", args?.classroomId],
-//     () => fetchSyllabusTagsByClassroom(args?.classroomId || ""),
-//     args?.config
-//   );
-
-//   return getSyllabusTagsByClassroomQuery;
-// }
-
 export function useAddSyllabusTags(args?: {
   config?: UseMutationOptions<
     boolean,
@@ -113,4 +85,24 @@ export function useAddFreeTags(args?: {
   );
 
   return addTagMutation;
+}
+
+export function useRemoveChapterTags(args?: {
+  config?: UseMutationOptions<boolean, Error, string, Array<any>>;
+}) {
+  const apiAuth = useApiAuth();
+
+  const removeChapterTagsMutation = useMutation(
+    z
+      .function()
+      .args(z.string())
+      .implement(async (chapterId: string) => {
+        await apiAuth.delete(`/tags/syllabus/${chapterId}`);
+
+        return true;
+      }),
+    args?.config
+  );
+
+  return removeChapterTagsMutation;
 }

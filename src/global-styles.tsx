@@ -6,7 +6,7 @@ export default function GlobalStyles() {
       styles={css`
         html,
         body {
-          font-family: Be Vietnam, system;
+          font-family: Roboto, system;
           background-color: #f4f6f8;
         }
 

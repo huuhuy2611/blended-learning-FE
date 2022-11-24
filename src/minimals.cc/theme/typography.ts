@@ -1,8 +1,8 @@
-import { pxToRem, responsiveFontSizes } from '../utils/getFontValue';
+import { pxToRem, responsiveFontSizes } from "../utils/getFontValue";
 
 // ----------------------------------------------------------------------
 
-const FONT_PRIMARY = 'Be Vietnam, system';
+const FONT_PRIMARY = "Roboto, system";
 
 const typography = {
   fontFamily: FONT_PRIMARY,
@@ -75,13 +75,13 @@ const typography = {
     fontWeight: 700,
     lineHeight: 1.5,
     fontSize: pxToRem(12),
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
   button: {
     fontWeight: 700,
     lineHeight: 24 / 14,
     fontSize: pxToRem(14),
-    textTransform: 'none',
+    textTransform: "none",
   },
 } as const;
 

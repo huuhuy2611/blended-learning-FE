@@ -16,28 +16,24 @@ export default function GlobalFonts() {
             local("Helvetica Neue"), local(sans-serif);
         }
         @font-face {
-          font-family: "Be Vietnam";
+          font-family: "Roboto";
           font-weight: 700;
-          src: url("/fonts/Be_Vietnam_Pro/BeVietnamPro-Bold.ttf")
-            format("truetype");
+          src: url("/fonts/Roboto/Roboto-Bold.ttf") format("truetype");
         }
         @font-face {
-          font-family: "Be Vietnam";
+          font-family: "Roboto";
           font-weight: 600;
-          src: url("/fonts/Be_Vietnam_Pro/BeVietnamPro-Medium.ttf")
-            format("truetype");
+          src: url("/fonts/Roboto/Roboto-Medium.ttf") format("truetype");
         }
         @font-face {
-          font-family: "Be Vietnam";
+          font-family: "Roboto";
           font-weight: 500;
-          src: url("/fonts/Be_Vietnam_Pro/BeVietnamPro-SemiBold.ttf")
-            format("truetype");
+          src: url("/fonts/Roboto/Roboto-Regular.ttf") format("truetype");
         }
         @font-face {
-          font-family: "Be Vietnam";
+          font-family: "Roboto";
           font-weight: 400;
-          src: url("/fonts/Be_Vietnam_Pro/BeVietnamPro-Regular.ttf")
-            format("truetype");
+          src: url("/fonts/Roboto/Roboto-Regular.ttf") format("truetype");
         }
       `}
     />

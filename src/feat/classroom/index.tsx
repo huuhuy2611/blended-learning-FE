@@ -133,7 +133,10 @@ const Classroom = () => {
       return (
         <Syllabus
           dataClassroom={dataClassroom}
-          refetchData={refetchDataClassroom}
+          refetchData={() => {
+            refetchDataClassroom();
+            refetchDataPosts();
+          }}
         />
       );
     }
