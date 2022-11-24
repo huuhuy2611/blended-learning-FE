@@ -17,11 +17,11 @@ import {
   Draggable,
   Droppable,
   DropResult,
-  ResponderProvided,
 } from "react-beautiful-dnd";
 import { PrimaryButton, SecondaryButton } from "@/common/components/button";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import EditTwoToneIcon from "@mui/icons-material/EditTwoTone";
+import DeleteTwoToneIcon from "@mui/icons-material/DeleteTwoTone";
 import CloseTwoToneIcon from "@mui/icons-material/CloseTwoTone";
 import CheckTwoToneIcon from "@mui/icons-material/CheckTwoTone";
 import { v4 as uuidv4 } from "uuid";
@@ -239,20 +239,50 @@ const ModalChapterDetails = (props: IProps) => {
                                     })}
                                   </>
                                 ) : (
-                                  <>
+                                  <Box
+                                    className="div-center"
+                                    sx={{
+                                      justifyContent: "space-between",
+                                      width: "100%",
+                                    }}
+                                  >
                                     <Typography variant="body2">
                                       {item.tag}
                                     </Typography>
-                                    <IconButton
-                                      sx={{ p: 1 }}
-                                      onClick={() => {
-                                        setIsEditingItem(true);
-                                        setSelectedItem(item);
-                                      }}
-                                    >
-                                      <EditTwoToneIcon sx={{ fontSize: 16 }} />
-                                    </IconButton>
-                                  </>
+                                    <Box>
+                                      <IconButton
+                                        sx={{ p: 1 }}
+                                        onClick={() => {
+                                          setIsEditingItem(true);
+                                          setSelectedItem(item);
+                                        }}
+                                      >
+                                        <EditTwoToneIcon
+                                          sx={{ fontSize: 20 }}
+                                        />
+                                      </IconButton>
+                                      <IconButton
+                                        sx={{ p: 1 }}
+                                        onClick={() => {
+                                          const newData = {
+                                            id: data.id,
+                                            tag: data.tag,
+                                            children:
+                                              data?.children?.filter(
+                                                (chapterItem) =>
+                                                  chapterItem.id !== item.id
+                                              ) || [],
+                                          };
+
+                                          setData(newData);
+                                        }}
+                                      >
+                                        <DeleteTwoToneIcon
+                                          sx={{ fontSize: 20 }}
+                                        />
+                                      </IconButton>
+                                    </Box>
+                                  </Box>
                                 )}
                               </Box>
                             )}

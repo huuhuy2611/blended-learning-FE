@@ -1,7 +1,10 @@
-import { Box, Button, Typography, useTheme } from "@mui/material";
+import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
 import { useEffect, useState } from "react";
 import { cloneDeep } from "lodash";
-import { useAddSyllabusTags } from "@/common/hooks/use-tag";
+import {
+  useAddSyllabusTags,
+  useRemoveChapterTags,
+} from "@/common/hooks/use-tag";
 import { useRouter } from "next/router";
 import { useUpdateClassroom } from "@/common/hooks/use-classrooms";
 import useLocalStorage from "@/common/hooks/use-local-storage";
@@ -18,8 +21,10 @@ import {
 import ModalChapterDetails from "./modal-chapter-details";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import AddTwoToneIcon from "@mui/icons-material/AddTwoTone";
+import DeleteTwoToneIcon from "@mui/icons-material/DeleteTwoTone";
 import { ChapterPayload } from "@/common/types/tag.type";
 import { ClassroomItem } from "@/common/types/classroom.type";
+import ModalConfirmation from "../right-classroom/modal-confirmation";
 
 interface IProps {
   dataClassroom: ClassroomItem | undefined;
@@ -51,12 +56,20 @@ const Syllabus = (props: IProps) => {
       },
     },
   });
+  const { mutateAsync: handleRemoveChapterTags } = useRemoveChapterTags({
+    config: {
+      onSuccess: () => {
+        setLabelSnackbar("Delete chapter successful!");
+      },
+    },
+  });
 
   const [isEditing, setIsEditing] = useState(false);
   const [showModalChapterDetails, setShowModalChapterDetails] = useState(false);
   const [selectedChapter, setSelectedChapter] = useState<ChapterPayload | null>(
     null
   );
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
   const [dataSyllabus, setDataSyllabus] = useState<ChapterPayload[] | null>(
     null
@@ -142,6 +155,31 @@ const Syllabus = (props: IProps) => {
           }}
         />
       )}
+
+      {showConfirmDelete && selectedChapter && (
+        <ModalConfirmation
+          message="Are you sure delete this chapter?"
+          onClose={() => setSelectedChapter(null)}
+          onDelete={async () => {
+            if (!selectedChapter.id) {
+              setErrorSnackbar("Error when delete chapter");
+              return;
+            }
+
+            try {
+              await handleRemoveChapterTags(selectedChapter.id);
+              const filterDataSyllabus =
+                dataSyllabus?.filter(
+                  (item) => item.id !== selectedChapter.id
+                ) || [];
+              setDataSyllabus(filterDataSyllabus);
+            } catch (err) {
+              setErrorSnackbar("Error when delete chapter");
+            }
+            setSelectedChapter(null);
+          }}
+        />
+      )}
       {userRole === "TEACHER" && (
         <Box
           className="div-center"
@@ -149,7 +187,7 @@ const Syllabus = (props: IProps) => {
         >
           {isEditing ? (
             <>
-              <Button
+              {/* <Button
                 color="error"
                 onClick={() => {
                   setIsEditing(false);
@@ -157,7 +195,7 @@ const Syllabus = (props: IProps) => {
                 sx={{ mr: 1 }}
               >
                 Cancel
-              </Button>
+              </Button> */}
               <PrimaryButton onClick={handleSaveSyllabus}>Save</PrimaryButton>
             </>
           ) : (
@@ -167,7 +205,7 @@ const Syllabus = (props: IProps) => {
                   setIsEditing(true);
                 }}
               >
-                Edit
+                {!!dataSyllabus?.length ? "Edit" : "Create"}
               </PrimaryButton>
             </>
           )}
@@ -195,10 +233,6 @@ const Syllabus = (props: IProps) => {
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          onClick={() => {
-                            setSelectedChapter(item);
-                            setShowModalChapterDetails(true);
-                          }}
                           className="div-center"
                           sx={{ ml: 1, width: "100%" }}
                         >
@@ -210,6 +244,10 @@ const Syllabus = (props: IProps) => {
                             }}
                           />
                           <Box
+                            onClick={() => {
+                              setSelectedChapter(item);
+                              setShowModalChapterDetails(true);
+                            }}
                             sx={{
                               px: 2,
                               py: 1,
@@ -229,6 +267,15 @@ const Syllabus = (props: IProps) => {
                               </Box>
                             ))}
                           </Box>
+                          <IconButton
+                            sx={{ p: 1 }}
+                            onClick={() => {
+                              setSelectedChapter(item);
+                              setShowConfirmDelete(true);
+                            }}
+                          >
+                            <DeleteTwoToneIcon sx={{ fontSize: 20 }} />
+                          </IconButton>
                         </Box>
                       )}
                     </Draggable>
@@ -293,130 +340,6 @@ const Syllabus = (props: IProps) => {
           )}
         </>
       )}
-
-      {/* {dataSyllabus?.length ? (
-        <>
-          {isEditing ? (
-            <>
-              <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable droppableId="droppable">
-                  {(provided) => (
-                    <Box
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                      sx={{ width: "100%" }}
-                    >
-                      {dataSyllabus.map((item, index) => (
-                        <Draggable
-                          key={item.id}
-                          draggableId={item.id}
-                          index={index}
-                        >
-                          {(provided) => (
-                            <Box
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              onClick={() => {
-                                setSelectedChapter(item);
-                                setShowModalChapterDetails(true);
-                              }}
-                              className="div-center"
-                              sx={{ ml: 1, width: "100%" }}
-                            >
-                              <DragIndicatorIcon
-                                sx={{
-                                  fontSize: 20,
-                                  color: "grey.500",
-                                  mr: 1,
-                                }}
-                              />
-                              <Box
-                                sx={{
-                                  px: 2,
-                                  py: 1,
-                                  border: `1px solid ${theme.palette.grey[50032]}`,
-                                  borderRadius: 1,
-                                  my: 1,
-                                  width: "100%",
-                                }}
-                              >
-                                <Typography variant="body1">
-                                  {item.tag}
-                                </Typography>
-
-                                {item?.children?.map((subItem) => (
-                                  <Box key={subItem.id} sx={{ ml: 3 }}>
-                                    <Typography variant="body2">
-                                      {subItem.tag}
-                                    </Typography>
-                                  </Box>
-                                ))}
-                              </Box>
-                            </Box>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                    </Box>
-                  )}
-                </Droppable>
-              </DragDropContext>
-              <Box className="div-center" sx={{ width: "100%", mt: 1 }}>
-                <PrimaryButton
-                  onClick={() => {
-                    setShowModalChapterDetails(true);
-                  }}
-                >
-                  <AddTwoToneIcon sx={{ fontSize: 16 }} />
-                  Add New Chapter
-                </PrimaryButton>
-              </Box>
-            </>
-          ) : (
-            <Box
-              sx={{
-                py: 1,
-                px: 3,
-                border: `1px solid ${theme.palette.grey[50032]}`,
-                borderRadius: 1,
-                width: "100%",
-              }}
-            >
-              {dataSyllabus.map((chapter) => (
-                <Box key={chapter.id}>
-                  <Typography variant="subtitle1">{chapter.tag}</Typography>
-                  {chapter?.children?.map((item) => (
-                    <Box key={item.id} sx={{ ml: 2 }}>
-                      <Typography variant="body1">{item.tag}</Typography>
-                    </Box>
-                  ))}
-                </Box>
-              ))}
-            </Box>
-          )}
-        </>
-      ) : (
-        <>
-          <Box
-            className="div-center"
-            sx={{
-              flexDirection: "column",
-              width: "100%",
-              height: "500px",
-              background: theme.palette.grey[500_8],
-              borderRadius: 1,
-            }}
-          >
-            <CancelPresentationTwoToneIcon
-              sx={{ color: "grey.500", fontSize: 40 }}
-            />
-            <Typography variant="h4" sx={{ color: "grey.500" }}>
-              No syllabus yet
-            </Typography>
-          </Box>
-        </>
-      )} */}
     </>
   );
 };
