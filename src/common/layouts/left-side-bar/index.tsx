@@ -38,34 +38,34 @@ export interface LeftSideBarItemProps extends ButtonProps {
   icon?: React.ReactNode;
 }
 
-const LEFT_SIDEBAR_TOP_ITEMS: LeftSideBarItemProps[] = [
+const LEFT_SIDEBAR_TOP_ITEMS_ADMIN: LeftSideBarItemProps[] = [
   {
-    text: <>Classrooms</>,
+    text: "Classrooms",
     href: "/admin/classrooms",
     icon: <HomeTwoToneIcon fontSize="medium" />,
   },
   {
-    text: <>Users</>,
+    text: "Users",
     href: "/admin/users",
     icon: <AccountBoxTwoToneIcon fontSize="medium" />,
   },
   {
-    text: <>Reports</>,
+    text: "Reports",
     href: "/admin/reports",
     icon: <AssessmentTwoToneIcon fontSize="medium" />,
   },
 ];
 
-const LEFT_SIDEBAR_BOTTOM_ITEMS: LeftSideBarItemProps[] = [
+const LEFT_SIDEBAR_TOP_ITEMS_TEACHER: LeftSideBarItemProps[] = [
   {
-    text: <>Support</>,
-    href: "/support",
-    icon: <SupportTwoToneIcon fontSize="medium" />,
+    text: "Classrooms",
+    href: "/admin/classrooms",
+    icon: <HomeTwoToneIcon fontSize="medium" />,
   },
   {
-    text: <>Settings</>,
-    href: "/settings",
-    icon: <SettingsTwoToneIcon fontSize="medium" />,
+    text: "Reports",
+    href: "/admin/reports",
+    icon: <AssessmentTwoToneIcon fontSize="medium" />,
   },
 ];
 
@@ -220,15 +220,16 @@ function LeftSidebarNavigation() {
   return (
     <Stack spacing={0} justifyContent="space-between" flex="1">
       <Stack spacing={itemSpacing}>
-        {(userRole === "ADMIN" || userRole === "TEACHER") &&
-          LEFT_SIDEBAR_TOP_ITEMS.map((item) => (
+        {userRole === "ADMIN" &&
+          LEFT_SIDEBAR_TOP_ITEMS_ADMIN.map((item) => (
+            <LeftSidebarItem {...item} key={item?.href} />
+          ))}
+        {userRole === "TEACHER" &&
+          LEFT_SIDEBAR_TOP_ITEMS_TEACHER.map((item) => (
             <LeftSidebarItem {...item} key={item?.href} />
           ))}
       </Stack>
       <Stack spacing={itemSpacing}>
-        {/* {LEFT_SIDEBAR_BOTTOM_ITEMS.map((item) => (
-          <LeftSidebarItem {...item} key={item?.href} />
-        ))} */}
         <PrimaryButton
           sx={{ fontSize: 14, p: 0.5, fontWeight: "500" }}
           onClick={() => {

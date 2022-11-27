@@ -51,6 +51,8 @@ interface IProps {
 const CustomTable = (props: IProps) => {
   const { columns, rows, onView, onEdit, onDelete } = props;
 
+  if (!columns || !rows) return null;
+
   return (
     <TableContainer component={Paper} sx={{ maxHeight: 600 }}>
       <Table stickyHeader sx={{ minWidth: 1000 }} aria-label="customized table">

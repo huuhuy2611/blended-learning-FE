@@ -37,15 +37,7 @@ const AdminReports = () => {
       </Typography>
       <Grid container spacing={2} alignItems="stretch">
         {filteredClassrooms?.map((item, index) => (
-          <Grid
-            key={index}
-            item
-            lg={4}
-            md={4}
-            sm={6}
-            xs={12}
-            sx={{ height: "100%" }}
-          >
+          <Grid key={index} item lg={4} md={4} sm={6} xs={12}>
             <Card
               sx={{ cursor: "pointer", height: "100%" }}
               onClick={() => router.push(`/admin/reports/${item.id}`)}

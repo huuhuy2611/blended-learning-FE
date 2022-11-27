@@ -347,17 +347,15 @@ const LeftClass = (props: IProps) => {
             </Box>
           )}
         </Box>
-        {userRole === "STUDENT" && (
-          <Box>
-            <PrimaryButton
-              fullWidth
-              size="large"
-              onClick={() => setShowModalAddPost(true)}
-            >
-              <AddTwoToneIcon /> Add new post
-            </PrimaryButton>
-          </Box>
-        )}
+        <Box>
+          <PrimaryButton
+            fullWidth
+            size="large"
+            onClick={() => setShowModalAddPost(true)}
+          >
+            <AddTwoToneIcon /> Add new post
+          </PrimaryButton>
+        </Box>
       </Card>
     </>
   );
