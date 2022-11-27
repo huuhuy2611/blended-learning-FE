@@ -15,9 +15,11 @@ import ModalConfirmation from "@/feat/classroom/right-classroom/modal-confirmati
 import { ClassroomItem } from "@/common/types/classroom.type";
 import { useRouter } from "next/router";
 import { sortBy } from "lodash";
+import useLocalStorage from "@/common/hooks/use-local-storage";
 
 const AdminClassrooms = () => {
   const router = useRouter();
+  const [userRole] = useLocalStorage("userRole", "");
 
   const { data: dataClassrooms, refetch: refetchDataClassrooms } =
     useClassrooms();
@@ -102,9 +104,11 @@ const AdminClassrooms = () => {
         sx={{ justifyContent: "space-between", mb: 2 }}
       >
         <Typography variant="h3">List classrooms</Typography>
-        <PrimaryButton onClick={() => setShowAddClassroom(true)}>
-          Add Classroom
-        </PrimaryButton>
+        {userRole === "ADMIN" && (
+          <PrimaryButton onClick={() => setShowAddClassroom(true)}>
+            Add Classroom
+          </PrimaryButton>
+        )}
       </Box>
 
       <CustomTable
@@ -115,14 +119,22 @@ const AdminClassrooms = () => {
         ]}
         rows={sortBy(dataClassrooms, ["title"])}
         onView={(item) => router.push(`/admin/classrooms/${item.id}`)}
-        onEdit={(classroom) => {
-          setSelectedClassroom(classroom);
-          setShowAddClassroom(true);
-        }}
-        onDelete={(classroom) => {
-          setSelectedClassroom(classroom);
-          setShowConfirmDelete(true);
-        }}
+        onEdit={
+          userRole === "ADMIN"
+            ? (classroom) => {
+                setSelectedClassroom(classroom);
+                setShowAddClassroom(true);
+              }
+            : undefined
+        }
+        onDelete={
+          userRole === "ADMIN"
+            ? (classroom) => {
+                setSelectedClassroom(classroom);
+                setShowConfirmDelete(true);
+              }
+            : undefined
+        }
       />
     </Card>
   );
