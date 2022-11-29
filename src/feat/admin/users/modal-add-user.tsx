@@ -235,6 +235,7 @@ const ModalAddUser = (props: IProps) => {
               ...dataUser,
               password: data && !checkboxResetPassword ? "" : "12345678",
             });
+            onClose();
           }}
           autoFocus
         >

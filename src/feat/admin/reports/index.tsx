@@ -53,9 +53,9 @@ const AdminReports = () => {
                   <Typography gutterBottom variant="h5" component="div">
                     {item.title}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  {/* <Typography variant="body2" color="text.secondary">
                     [Description (update later)]
-                  </Typography>
+                  </Typography> */}
                 </CardContent>
               </CardActionArea>
             </Card>

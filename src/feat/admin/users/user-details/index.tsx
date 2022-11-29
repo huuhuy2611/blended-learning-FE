@@ -108,45 +108,50 @@ const AdminUserDetails = () => {
           </Typography>
         </Box>
       </Box>
-      <Box>
-        <Box sx={{ mb: 1 }}>
-          <Box className="div-center" sx={{ justifyContent: "space-between" }}>
-            <Typography variant="h5" sx={{ mb: 2 }}>
-              List classrooms of user
-            </Typography>
-            <PrimaryButton onClick={() => setShowModalClassroomsByUser(true)}>
-              Add classroom
-            </PrimaryButton>
+      {["TEACHER", "STUDENT"].includes(dataUser.role) && (
+        <Box>
+          <Box sx={{ mb: 1 }}>
+            <Box
+              className="div-center"
+              sx={{ justifyContent: "space-between" }}
+            >
+              <Typography variant="h5" sx={{ mb: 2 }}>
+                List classrooms of user
+              </Typography>
+              <PrimaryButton onClick={() => setShowModalClassroomsByUser(true)}>
+                Add classroom
+              </PrimaryButton>
+            </Box>
           </Box>
-        </Box>
 
-        {dataClassroomsByUser?.length ? (
-          <CustomTable
-            columns={[
-              { label: "ID", value: "id" },
-              { label: "Title", value: "title" },
-              { label: "Status", value: "status" },
-            ]}
-            rows={dataClassroomsByUser}
-            onDelete={(user) => {
-              setSelectedClassroom(user);
-            }}
-          />
-        ) : (
-          <Box
-            className="div-center"
-            sx={{
-              height: "200px",
-              background: theme.palette.grey[50032],
-              borderRadius: 1,
-              flexDirection: "column",
-            }}
-          >
-            <CancelPresentationTwoToneIcon sx={{ fontSize: 36 }} />
-            <Typography variant="h5">No users yet</Typography>
-          </Box>
-        )}
-      </Box>
+          {dataClassroomsByUser?.length ? (
+            <CustomTable
+              columns={[
+                { label: "ID", value: "id" },
+                { label: "Title", value: "title" },
+                { label: "Status", value: "status" },
+              ]}
+              rows={dataClassroomsByUser}
+              onDelete={(user) => {
+                setSelectedClassroom(user);
+              }}
+            />
+          ) : (
+            <Box
+              className="div-center"
+              sx={{
+                height: "200px",
+                background: theme.palette.grey[50032],
+                borderRadius: 1,
+                flexDirection: "column",
+              }}
+            >
+              <CancelPresentationTwoToneIcon sx={{ fontSize: 36 }} />
+              <Typography variant="h5">No users yet</Typography>
+            </Box>
+          )}
+        </Box>
+      )}
     </Card>
   );
 };
