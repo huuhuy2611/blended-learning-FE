@@ -117,37 +117,39 @@ const AdminUsers = () => {
           )}
         </Box>
 
-        <Box sx={{ pb: 2 }}>
-          <CustomTable
-            columns={[
-              { label: "ID", value: "id" },
-              { label: "Email", value: "email" },
-              { label: "Name", value: "name" },
-              { label: "Gender", value: "gender" },
-              { label: "Role", value: "role" },
-            ]}
-            rows={dataUsers}
-            onView={(user) => {
-              router.push(`/admin/users/${user.id}`);
-            }}
-            onEdit={
-              userRole === "ADMIN"
-                ? (user) => {
-                    setSelectedUser(user);
-                    setShowModalUser(true);
-                  }
-                : undefined
-            }
-            onDelete={
-              userRole === "ADMIN"
-                ? (user) => {
-                    setSelectedUser(user);
-                    setShowConfirmDelete(true);
-                  }
-                : undefined
-            }
-          />
-        </Box>
+        {dataUsers?.length && (
+          <Box sx={{ pb: 2 }}>
+            <CustomTable
+              columns={[
+                { label: "ID", value: "id" },
+                { label: "Email", value: "email" },
+                { label: "Name", value: "name" },
+                { label: "Gender", value: "gender" },
+                { label: "Role", value: "role" },
+              ]}
+              rows={dataUsers}
+              onView={(user) => {
+                router.push(`/admin/users/${user.id}`);
+              }}
+              onEdit={
+                userRole === "ADMIN"
+                  ? (user) => {
+                      setSelectedUser(user);
+                      setShowModalUser(true);
+                    }
+                  : undefined
+              }
+              onDelete={
+                userRole === "ADMIN"
+                  ? (user) => {
+                      setSelectedUser(user);
+                      setShowConfirmDelete(true);
+                    }
+                  : undefined
+              }
+            />
+          </Box>
+        )}
       </Card>
     </>
   );

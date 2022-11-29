@@ -145,17 +145,19 @@ const LeftClass = (props: IProps) => {
 
       const lengthKeySearch = debounceKeySearch.length;
       const indexKeySearch = _content.indexOf(lowerCaseKeySearch);
-      const isFirstContent = indexKeySearch - 5 < 0;
+      const isFirstContent = indexKeySearch - 5 === 0;
       const isLastContent = indexKeySearch + 5 > _content.length;
-      const snippets = _content
-        .substring(
-          isFirstContent ? 0 : indexKeySearch - 5,
-          indexKeySearch + lengthKeySearch + 5
-        )
-        .replace(
-          lowerCaseKeySearch,
-          `<strong style="color: #3d0099">${lowerCaseKeySearch}</strong>`
-        );
+      const snippets =
+        indexKeySearch >= 0 &&
+        _content
+          .substring(
+            isFirstContent ? 0 : indexKeySearch - 5,
+            indexKeySearch + lengthKeySearch + 5
+          )
+          .replace(
+            lowerCaseKeySearch,
+            `<strong style="color: #3d0099">${lowerCaseKeySearch}</strong>`
+          );
 
       if (!snippets) return null;
 
@@ -293,6 +295,7 @@ const LeftClass = (props: IProps) => {
             </MuiSelect>
           </Box>
         </Box>
+
         <Box sx={{ height: "80%", overflow: "auto" }}>
           {data ? (
             <List>

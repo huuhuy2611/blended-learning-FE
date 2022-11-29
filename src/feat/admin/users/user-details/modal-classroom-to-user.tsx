@@ -37,7 +37,9 @@ const ModalClassroomToUser = (props: IProps) => {
 
     if (!dataIgnore || !dataIgnore.length) return dataClassrooms;
 
-    const dataFilter = dataClassrooms.filter((item) => !some(dataIgnore, item));
+    const dataFilter = dataClassrooms.filter(
+      (item) => !dataIgnore.map(({ id }) => id).includes(item.id)
+    );
 
     return dataFilter;
   }, [dataClassrooms, dataIgnore]);

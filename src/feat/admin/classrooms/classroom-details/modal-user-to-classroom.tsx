@@ -34,7 +34,9 @@ const ModalUserToClassroom = (props: IProps) => {
     if (!dataIgnore || !dataIgnore.length) return dataUsers;
 
     const dataFilter = dataUsers.filter(
-      (item) => !some(dataIgnore, item) && item.role !== "ADMIN"
+      (item) =>
+        item.role !== "ADMIN" &&
+        !dataIgnore.map(({ id }) => id).includes(item.id)
     );
 
     return dataFilter;

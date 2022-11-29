@@ -42,9 +42,6 @@ const ModalAddPost = (props: IProps) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  const [inputOtherTag, setInputOtherTag] = useState("");
-  const [otherTags, setOtherTags] = useState<string[]>([]);
-
   const [selectedSyllabusTags, setSelectedSyllabusTags] = useState<
     ITagOption[] | null
   >(null);
@@ -54,23 +51,13 @@ const ModalAddPost = (props: IProps) => {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  const { data: dataTags } = useTagsByClassroom(classroomId);
+  const { data: dataTags, refetch: refetchDataTags } =
+    useTagsByClassroom(classroomId);
 
   const { mutateAsync: handleAddFreeTags } = useAddFreeTags({
     config: {
-      onSuccess: (data) => {
-        const resIds = data.map(({ id }) => id);
-        const selectedTagIds = [
-          ...(selectedSyllabusTags || []),
-          ...(selectedFreeTags || []),
-        ]?.map(({ value }) => value);
-
-        onSubmit({
-          title,
-          content,
-          classroomId,
-          tagIds: [...resIds, ...selectedTagIds],
-        });
+      onSuccess: () => {
+        refetchDataTags();
       },
     },
   });
@@ -172,13 +159,6 @@ const ModalAddPost = (props: IProps) => {
 
   const handleSubmit = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
-    if (otherTags.length) {
-      handleAddFreeTags({
-        classroomId,
-        tags: otherTags,
-      });
-      return;
-    }
 
     onSubmit({
       title,
@@ -269,73 +249,30 @@ const ModalAddPost = (props: IProps) => {
             defaultValue={defaultFreeOptions}
             options={freeTagsOptions}
             styles={customStyles}
-            isSearchable={false}
+            isSearchable
             onChange={(selectedOptions) => {
               const _selectedOptions = cloneDeep(
                 selectedOptions
               ) as ITagOption[];
               setSelectedFreeTags(_selectedOptions);
             }}
-          />
-        </Box>
+            noOptionsMessage={({ inputValue }) => {
+              if (!inputValue) return;
 
-        <Box sx={{ p: 1, mb: 1 }}>
-          <Typography variant="body1" sx={{ mb: 1 }}>
-            Other free tags
-          </Typography>
-          <Box>
-            <TextField
-              value={inputOtherTag}
-              onChange={(e) => setInputOtherTag(e.target.value)}
-              sx={{
-                mr: 1,
-                "& .MuiInputBase-input.MuiOutlinedInput-input": {
-                  p: 1.2,
-                },
-              }}
-            />
-            <PrimaryButton
-              onClick={() => {
-                setOtherTags([...otherTags, inputOtherTag]);
-                setInputOtherTag("");
-              }}
-            >
-              Save
-            </PrimaryButton>
-          </Box>
-          {!!otherTags.length && (
-            <Box
-              sx={{ mt: 1, justifyContent: "flex-start" }}
-              className="div-center"
-            >
-              {otherTags.map((item) => (
-                <Box
-                  sx={{
-                    px: 1,
-                    py: 0.5,
-                    background: theme.palette.grey[500_56],
-                    borderRadius: 1,
-                    width: "fit-content",
-                    mr: 1,
+              return (
+                <PrimaryButton
+                  onClick={() => {
+                    handleAddFreeTags({
+                      classroomId,
+                      tags: [inputValue],
+                    });
                   }}
-                  className="div-center"
                 >
-                  <Typography variant="body2" sx={{ mr: 0.5 }}>
-                    {item}
-                  </Typography>
-                  <CloseTwoToneIcon
-                    sx={{ cursor: "pointer" }}
-                    onClick={() => {
-                      const filterOtherTags = otherTags.filter(
-                        (tag) => tag !== item
-                      );
-                      setOtherTags(filterOtherTags);
-                    }}
-                  />
-                </Box>
-              ))}
-            </Box>
-          )}
+                  Add new tag
+                </PrimaryButton>
+              );
+            }}
+          />
         </Box>
 
         <Box sx={{ p: 1, mb: 1 }}>
